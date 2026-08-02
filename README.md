@@ -1,2 +1,2 @@
 # FTC2026
-Code for FTC 2026 Season
+This is the code for FTC LooseScrews Team for the 2026 season
