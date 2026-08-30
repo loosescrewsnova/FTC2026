@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.openftc:apriltag:2.1.0@aar" external-system-id="GRADLE">
+    <CLASSES>
+      <root url="file://$USER_HOME$/.gradle/caches/9.1.0/transforms/f1b3d42e5abfbc6f005b8af388b6ac70/workspace/transformed/apriltag-2.1.0/AndroidManifest.xml" />
+      <root url="file://$USER_HOME$/.gradle/caches/9.1.0/transforms/f1b3d42e5abfbc6f005b8af388b6ac70/workspace/transformed/apriltag-2.1.0/res" />
+      <root url="jar://$USER_HOME$/.gradle/caches/9.1.0/transforms/f1b3d42e5abfbc6f005b8af388b6ac70/workspace/transformed/apriltag-2.1.0/jars/classes.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
