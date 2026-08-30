@@ -2,38 +2,26 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 
 @TeleOp(name = "Joystick Operations")
 public class JoystickOperations extends OpMode {
 
-    private DcMotor leftMotor;
-    private DcMotor rightMotor;
+    private Drive drive;
 
     @Override
     public void init() {
-        leftMotor = hardwareMap.get(DcMotor.class, "leftMotor");
-        rightMotor = hardwareMap.get(DcMotor.class, "rightMotor");
+        drive = new Drive(hardwareMap);
 
-        rightMotor.setDirection(DcMotor.Direction.REVERSE);
-
-        leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        telemetry.addData("Status", "Initialized");
+        telemetry.update();
     }
 
     @Override
     public void loop() {
+        drive.drive(gamepad1);
 
-        double leftPower = -gamepad1.left_stick_y;
-        double rightPower = -gamepad1.right_stick_y;
-
-        leftMotor.setPower(leftPower);
-        rightMotor.setPower(rightPower);
-
-        telemetry.addData("Left Motor Speed ", leftPower);
-        telemetry.addData("Right Motor Speed ", rightPower);
-        telemetry.addData("Status ", "Running");
-
+        telemetry.addData("Left Power", drive.getLeftPower());
+        telemetry.addData("Right Power", drive.getRightPower());
         telemetry.update();
     }
 }
