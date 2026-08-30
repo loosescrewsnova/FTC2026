@@ -27,23 +27,13 @@ public class JoystickOperations extends OpMode {
         double leftPower = -gamepad1.left_stick_y;
         double rightPower = -gamepad1.right_stick_y;
 
-        if (leftPower > 1.0) {
-            leftPower = 1.0;
-        }
-
-        if (leftPower < -1.0) {
-            leftPower = -1.0;
-        }
-
-        if (rightPower > 1.0) {
-            rightPower = 1.0;
-        }
-
-        if (rightPower < -1.0) {
-            rightPower = -1.0;
-        }
-
         leftMotor.setPower(leftPower);
         rightMotor.setPower(rightPower);
+
+        telemetry.addData("Left Motor Speed ", leftPower);
+        telemetry.addData("Right Motor Speed ", rightPower);
+        telemetry.addData("Status ", "Running");
+
+        telemetry.update();
     }
 }
