@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @TeleOp(name = "Joystick Operations")
-public class JoystickOperations extends OpMode {
+public class Main extends OpMode {
 
     private Drive drive;
 

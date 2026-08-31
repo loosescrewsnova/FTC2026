@@ -17,14 +17,15 @@ android {
     buildFeatures {
         buildConfig = true
     }
+    compileSdk 37
 
-    compileSdkVersion 30
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
     namespace = 'com.qualcomm.ftcrobotcontroller'
+    compileSdkMinor 0
 }
 
 apply from: '../build.dependencies.gradle'
