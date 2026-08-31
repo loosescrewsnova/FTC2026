@@ -30,20 +30,11 @@ public class Drive {
         leftMotor.setPower(leftPower);
         rightMotor.setPower(rightPower);
 
-        if(leftPower > 0.8) {
-            leftPower = 0.8;
-        }
+        double max = Math.max(Math.abs(leftPower), Math.abs(rightPower));
 
-        if(leftPower < -0.8) {
-            leftPower = -0.8;
-        }
-
-        if(rightPower > 0.8) {
-            rightPower = 0.8;
-        }
-
-        if(rightPower < -0.8) {
-            rightPower = -0.8;
+        if(max > 0.8) {
+            leftPower = (leftPower / max) * 0.8;
+            rightPower = (rightPower / max) * 0.8;
         }
     }
 
