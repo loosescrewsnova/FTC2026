@@ -26,4 +26,10 @@
 hs_err_pid*
 replay_pid*
 
-
+# compile files
+build/
+libraries/
+problems/
+executionHistory/
+fileHashes/
+buildOutputCleanup/
