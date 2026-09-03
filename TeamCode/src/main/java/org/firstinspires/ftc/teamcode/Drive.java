@@ -24,8 +24,8 @@ public class Drive {
 
     public void drive(Gamepad gamepad) {
 
-        leftPower = gamepad.left_stick_y;
-        rightPower = gamepad.right_stick_y;
+        leftPower = -gamepad.left_stick_y;
+        rightPower = -gamepad.right_stick_y;
 
         leftMotor.setPower(leftPower);
         rightMotor.setPower(rightPower);
