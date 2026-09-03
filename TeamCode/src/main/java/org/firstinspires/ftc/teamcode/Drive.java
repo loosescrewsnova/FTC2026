@@ -6,8 +6,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class Drive {
 
-    private DcMotor leftMotor;
-    private DcMotor rightMotor;
+    private final DcMotor leftMotor;
+    private final DcMotor rightMotor;
 
     private double leftPower;
     private double rightPower;
@@ -24,11 +24,18 @@ public class Drive {
 
     public void drive(Gamepad gamepad) {
 
-        leftPower = -gamepad.left_stick_y;
-        rightPower = -gamepad.right_stick_y;
+        leftPower = gamepad.left_stick_y;
+        rightPower = gamepad.right_stick_y;
 
         leftMotor.setPower(leftPower);
         rightMotor.setPower(rightPower);
+
+        double max = Math.max(Math.abs(leftPower), Math.abs(rightPower));
+
+        if(max > 0.8) {
+            leftPower = (leftPower / max) * 0.8;
+            rightPower = (rightPower / max) * 0.8;
+        }
     }
 
     public double getLeftPower() {
