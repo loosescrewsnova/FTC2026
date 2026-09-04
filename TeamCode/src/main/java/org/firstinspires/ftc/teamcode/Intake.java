@@ -14,7 +14,7 @@ public class Intake {
 
         intakeMotor.setDirection(DcMotor.Direction.REVERSE);
 
-        intakePower = 0;
+        intakePower = 1;
     }
 
     public void intake(Gamepad gamepad) {
