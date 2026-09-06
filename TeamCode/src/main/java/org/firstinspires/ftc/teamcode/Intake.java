@@ -9,6 +9,8 @@ public class Intake {
     private DcMotor intakeMotor;
     private double intakePower;
 
+    boolean wasA, isA, isB, wasB;
+
     public Intake(HardwareMap hardwareMap) {
         intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");
 
@@ -19,14 +21,15 @@ public class Intake {
 
     public void intake(Gamepad gamepad) {
 
-        if (gamepad.b) {
+        isA = gamepad.a;
+        isB = gamepad.b;
+        if (isB && !wasB) {
             intakePower = -1;
-        } else if (gamepad.a) {
+        } else if (isA && !wasA) {
             intakePower = 1;
-        } else {
-            intakePower = 0;
         }
-
+        wasA = isA;
+        wasB = isB;
         intakeMotor.setPower(intakePower);
     }
 
