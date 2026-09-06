@@ -3,6 +3,9 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.Subsystems.Intake;
+import org.firstinspires.ftc.teamcode.Subsystems.MecanumDrive;
+
 @Autonomous(name = "My First Linear OpMode", group = "Linear OpMode")
 public class FirstAutonomous extends LinearOpMode {
 
@@ -17,9 +20,9 @@ public class FirstAutonomous extends LinearOpMode {
         waitForStart();
 
         if(opModeIsActive()) {
-            mecanumDrive.mecunamDrive(0.8, 0, 0);
+            mecanumDrive.mecanumDrive(0.8, 0, 0);
             sleep(2000);
-            mecanumDrive.mecunamDrive(0, 0, 0);
+            mecanumDrive.mecanumDrive(0, 0, 0);
         }
     }
 }
