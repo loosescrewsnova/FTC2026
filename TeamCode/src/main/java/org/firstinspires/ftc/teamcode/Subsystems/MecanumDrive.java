@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Subsystems;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -27,7 +27,7 @@ public class MecanumDrive {
         rightBackMotor.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
-    public void mecunamDrive(double y, double x, double rx) {
+    public void mecanumDrive(double y, double x, double rx) {
 
         leftFrontMotorSpeed = y + x + rx;
         leftBackMotorSpeed = y - x + rx;
