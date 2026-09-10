@@ -2,20 +2,17 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.IMU;
 
+import org.firstinspires.ftc.teamcode.Subsystems.IMUOrthogonalNew;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake;
 import org.firstinspires.ftc.teamcode.Subsystems.MecanumDrive;
-import org.firstinspires.ftc.teamcode.Subsystems.SensorIMUOrthogonal;
 
 @TeleOp(name = "Joystick Operations")
 public class Main extends OpMode {
 
     private MecanumDrive mecanumDrive;
     private Intake intake;
-
-    private SensorIMUOrthogonal imuOrthogonal;
-    private IMU imu;
+    private IMUOrthogonalNew imuOrthogonal;
 
     private double endGameStart;
     private boolean isEndGame;
@@ -25,6 +22,7 @@ public class Main extends OpMode {
 
         mecanumDrive = new MecanumDrive(hardwareMap);
         intake = new Intake(hardwareMap);
+        imuOrthogonal = new IMUOrthogonalNew(hardwareMap);
 
         isEndGame = false;
 
@@ -46,20 +44,113 @@ public class Main extends OpMode {
         double rx = gamepad1.right_stick_x;
 
         mecanumDrive.mecanumDrive(y, x, rx);
-        mecanumDrive.updateOdometry(imu);
+
+        // Update odometry using the IMU
+        mecanumDrive.updateOdometry(imuOrthogonal.getIMU());
+
         intake.intake(gamepad1);
 
-        if(getRuntime() >= endGameStart && !isEndGame) {
+        if (gamepad1.y) {
+            imuOrthogonal.resetYaw();
+        }
+
+        if (getRuntime() >= endGameStart && !isEndGame) {
+
             gamepad1.rumbleBlips(3);
             isEndGame = true;
         }
 
-        telemetry.addData("Front Left Power", mecanumDrive.getLeftFrontPower());
-        telemetry.addData("Front Right Power", mecanumDrive.getRightFrontPower());
-        telemetry.addData("Back Left Power", mecanumDrive.getLeftBackPower());
-        telemetry.addData("Back Right Power", mecanumDrive.getRightBackPower());
-        telemetry.addData("Intake Power", intake.getIntakePower());
-        telemetry.addData("Is it Endgame", isEndGame);
+        telemetry.addData(
+                "Front Left Power",
+                mecanumDrive.getLeftFrontPower()
+        );
+
+        telemetry.addData(
+                "Front Right Power",
+                mecanumDrive.getRightFrontPower()
+        );
+
+        telemetry.addData(
+                "Back Left Power",
+                mecanumDrive.getLeftBackPower()
+        );
+
+        telemetry.addData(
+                "Back Right Power",
+                mecanumDrive.getRightBackPower()
+        );
+
+        telemetry.addData(
+                "Intake Power",
+                intake.getIntakePower()
+        );
+
+        telemetry.addData(
+                "Hub Orientation",
+                "Logo=%s USB=%s",
+                imuOrthogonal.getLogoDirection(),
+                imuOrthogonal.getUsbDirection()
+        );
+
+        telemetry.addData(
+                "Yaw (Z)",
+                "%.2f Deg.",
+                imuOrthogonal.getYawDegrees()
+        );
+
+        telemetry.addData(
+                "Pitch (X)",
+                "%.2f Deg.",
+                imuOrthogonal.getPitchDegrees()
+        );
+
+        telemetry.addData(
+                "Roll (Y)",
+                "%.2f Deg.",
+                imuOrthogonal.getRollDegrees()
+        );
+
+        telemetry.addData(
+                "Yaw Velocity",
+                "%.2f Deg/Sec",
+                imuOrthogonal.getYawVelocity()
+        );
+
+        telemetry.addData(
+                "Pitch Velocity",
+                "%.2f Deg/Sec",
+                imuOrthogonal.getPitchVelocity()
+        );
+
+        telemetry.addData(
+                "Roll Velocity",
+                "%.2f Deg/Sec",
+                imuOrthogonal.getRollVelocity()
+        );
+
+        telemetry.addData(
+                "X",
+                "%.2f in",
+                mecanumDrive.getX()
+        );
+
+        telemetry.addData(
+                "Y",
+                "%.2f in",
+                mecanumDrive.getY()
+        );
+
+        telemetry.addData(
+                "Heading",
+                "%.2f Deg",
+                mecanumDrive.getHeadingDegrees()
+        );
+
+        telemetry.addData(
+                "Is it Endgame",
+                isEndGame
+        );
+
         telemetry.update();
     }
 }
