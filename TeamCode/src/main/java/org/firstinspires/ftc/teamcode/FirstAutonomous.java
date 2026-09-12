@@ -4,13 +4,14 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.Subsystems.Intake;
+import org.firstinspires.ftc.teamcode.Subsystems.MecanumDrive;
 
 @Autonomous(name = "My First Linear OpMode", group = "Linear OpMode")
 public class FirstAutonomous extends LinearOpMode {
 
     public void runOpMode() {
 
-        MecanumDriveFromRyan mecanumDrive = new MecanumDriveFromRyan(hardwareMap);
+        MecanumDrive mecanumDrive = new MecanumDrive(hardwareMap);
         Intake intake = new Intake(hardwareMap);
 
         telemetry.addData("Status", "Initialized");
