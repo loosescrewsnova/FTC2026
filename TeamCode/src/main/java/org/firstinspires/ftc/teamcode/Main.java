@@ -35,7 +35,6 @@ public class Main extends OpMode {
 
     @Override
     public void start() {
-
         endGameStart = getRuntime() + 90;
     }
 
@@ -52,6 +51,7 @@ public class Main extends OpMode {
         mecanumDrive.updateOdometry(imuOrthogonal.getIMU());
 
         intake.intake(gamepad1);
+        shooter.shooter(gamepad1);
 
         if (gamepad1.y) {
             imuOrthogonal.resetYaw();
@@ -86,6 +86,11 @@ public class Main extends OpMode {
         telemetry.addData(
                 "Intake Power",
                 intake.getIntakePower()
+        );
+
+        telemetry.addData(
+                "Shooter Power",
+                shooter.getShooterSpeed()
         );
 
         telemetry.addData(
