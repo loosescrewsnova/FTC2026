@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Subsystems;
+package org.firstinspires.ftc.teamcode.Subsystems.shooter;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -13,11 +13,11 @@ public class Shooter {
 
     private boolean buttonWasPressed = false;
 
-    private double shooterSpeed = 0;
+    private double shooterSpeed = ShooterConstants.IDLE_POWER;
 
     public Shooter(HardwareMap hardwareMap) {
 
-        shooterMotor = hardwareMap.get(DcMotor.class, "shooterMotor");
+        shooterMotor = hardwareMap.get(DcMotor.class, ShooterConstants.SHOOTER_MOTOR_NAME);
     }
 
     public void shooter(Gamepad gamepad) {
@@ -30,15 +30,15 @@ public class Shooter {
         }
 
         // Button is being held
-        if (gamepad.dpad_left) {
+        if (gamepad.dpad_left && shooterSpeed < ShooterConstants.MAX_SHOOTER_POWER) {
 
             double heldTime = buttonTimer.seconds();
 
             // Increase power based on how long the button is held
-            shooterSpeed = heldTime * 0.2;
+            shooterSpeed = heldTime * ShooterConstants.POWER_RAMP_RATE;
 
-            // Maximum power is 1.0
-            shooterSpeed = Math.min(shooterSpeed, 1.0);
+            // Cap power at the configured maximum
+            //shooterSpeed = Math.min(shooterSpeed, ShooterConstants.MAX_SHOOTER_POWER); NOT required as the if condition does not run the unnecessary code
 
             shooterMotor.setPower(shooterSpeed);
         }
@@ -46,8 +46,8 @@ public class Shooter {
         // Button was released
         if (!gamepad.dpad_left) {
 
-            shooterSpeed = 0;
-            shooterMotor.setPower(0);
+            shooterSpeed = ShooterConstants.IDLE_POWER;
+            shooterMotor.setPower(ShooterConstants.IDLE_POWER);
 
             buttonWasPressed = false;
         }
