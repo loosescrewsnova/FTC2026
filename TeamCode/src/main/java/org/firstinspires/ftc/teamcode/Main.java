@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Subsystems.IMUOrthogonalNew;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake;
 import org.firstinspires.ftc.teamcode.Subsystems.MecanumDrive;
+import org.firstinspires.ftc.teamcode.Subsystems.servo.LSServo;
 import org.firstinspires.ftc.teamcode.Subsystems.shooter.Shooter;
 
 @TeleOp(name = "Joystick Operations")
@@ -14,6 +15,7 @@ public class Main extends OpMode {
     private MecanumDrive mecanumDrive;
     private Intake intake;
     private Shooter shooter;
+    private LSServo lsServo;
     private IMUOrthogonalNew imuOrthogonal;
 
     private double endGameStart;
@@ -25,6 +27,7 @@ public class Main extends OpMode {
         mecanumDrive = new MecanumDrive(hardwareMap);
         intake = new Intake(hardwareMap);
         shooter = new Shooter(hardwareMap);
+        lsServo = new LSServo(hardwareMap);
         imuOrthogonal = new IMUOrthogonalNew(hardwareMap);
 
         isEndGame = false;
@@ -52,6 +55,7 @@ public class Main extends OpMode {
 
         intake.intake(gamepad1);
         shooter.shooter(gamepad1);
+        lsServo.toggle(gamepad1);
 
         if (gamepad1.y) {
             imuOrthogonal.resetYaw();
@@ -91,6 +95,11 @@ public class Main extends OpMode {
         telemetry.addData(
                 "Shooter Power",
                 shooter.getShooterSpeed()
+        );
+
+        telemetry.addData(
+                "Claw Open",
+                lsServo.isOpen()
         );
 
         telemetry.addData(
