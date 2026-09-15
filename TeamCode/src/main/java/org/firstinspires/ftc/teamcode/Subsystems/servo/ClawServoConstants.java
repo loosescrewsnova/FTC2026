@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.Subsystems.servo;
 
 /**
- * Tunable and hardware-mapping constants for the {@link ClawServo} subsystem.
+ * Tunable and hardware-mapping constants for the {@link LSServo} subsystem.
  *
  * <p>Positions are in the standard {@code Servo.setPosition()} range of 0.0-1.0,
  * where 0.0 and 1.0 map to the physical endpoints of the servo's travel

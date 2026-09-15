@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Subsystems.IMUOrthogonalNew;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake;
 import org.firstinspires.ftc.teamcode.Subsystems.MecanumDrive;
-import org.firstinspires.ftc.teamcode.Subsystems.servo.ClawServo;
+import org.firstinspires.ftc.teamcode.Subsystems.servo.LSServo;
 import org.firstinspires.ftc.teamcode.Subsystems.shooter.Shooter;
 
 @TeleOp(name = "Joystick Operations")
@@ -15,7 +15,7 @@ public class Main extends OpMode {
     private MecanumDrive mecanumDrive;
     private Intake intake;
     private Shooter shooter;
-    private ClawServo clawServo;
+    private LSServo lsServo;
     private IMUOrthogonalNew imuOrthogonal;
 
     private double endGameStart;
@@ -27,7 +27,7 @@ public class Main extends OpMode {
         mecanumDrive = new MecanumDrive(hardwareMap);
         intake = new Intake(hardwareMap);
         shooter = new Shooter(hardwareMap);
-        clawServo = new ClawServo(hardwareMap);
+        lsServo = new LSServo(hardwareMap);
         imuOrthogonal = new IMUOrthogonalNew(hardwareMap);
 
         isEndGame = false;
@@ -55,7 +55,7 @@ public class Main extends OpMode {
 
         intake.intake(gamepad1);
         shooter.shooter(gamepad1);
-        clawServo.update(gamepad1);
+        lsServo.toggle(gamepad1);
 
         if (gamepad1.y) {
             imuOrthogonal.resetYaw();
@@ -99,7 +99,7 @@ public class Main extends OpMode {
 
         telemetry.addData(
                 "Claw Open",
-                clawServo.isOpen()
+                lsServo.isOpen()
         );
 
         telemetry.addData(
