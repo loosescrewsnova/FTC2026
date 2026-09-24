@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.Subsystems;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -117,7 +116,13 @@ public class MecanumDrive {
     // ODOMETRY UPDATE
     // ----------------------------
 
-    public void updateOdometry(IMU imu) {
+    /*
+     * headingRadians should come from IMUOrthogonalNew.getYawRadians(),
+     * NOT read directly from the raw IMU. That way any correction
+     * Limelight has applied to the IMU (via correctYaw()) automatically
+     * flows into the position calculation below.
+     */
+    public void updateOdometry(double headingRadians) {
 
         int currentLF = leftFrontMotor.getCurrentPosition();
         int currentRF = rightFrontMotor.getCurrentPosition();
@@ -139,17 +144,6 @@ public class MecanumDrive {
         double dLB = deltaLB * INCHES_PER_TICK;
         double dRB = deltaRB * INCHES_PER_TICK;
 
-        /*
-         * Robot-relative movement.
-         *
-         * +forward = robot moves forward
-         * +strafe  = robot moves right
-         *
-         * NOTE:
-         * Encoder signs depend on your motor configuration.
-         * Test by driving straight forward and verify all four
-         * encoder deltas have the expected sign.
-         */
         double robotForward =
                 (dLF + dRF + dLB + dRB) / 4.0;
 
@@ -157,32 +151,14 @@ public class MecanumDrive {
                 ((dLF - dRF - dLB + dRB) / 4.0)
                         * STRAFE_MULTIPLIER;
 
-        // IMU heading is the primary heading source.
-        double heading =
-                imu.getRobotYawPitchRollAngles()
-                        .getYaw(AngleUnit.RADIANS);
-
-        /*
-         * Use the average heading during the loop interval.
-         * This improves the field-frame translation estimate
-         * when rotating and translating at the same time.
-         */
         double deltaHeading =
-                normalizeAngle(heading - previousHeading);
+                normalizeAngle(headingRadians - previousHeading);
 
         double averageHeading =
                 previousHeading + deltaHeading / 2.0;
 
-        previousHeading = heading;
+        previousHeading = headingRadians;
 
-        /*
-         * Convert robot-relative translation into field-relative translation.
-         *
-         * Coordinate convention:
-         * +X = right
-         * +Y = forward
-         * +heading = counterclockwise
-         */
         double fieldX =
                 robotStrafe * Math.cos(averageHeading)
                         - robotForward * Math.sin(averageHeading);
@@ -202,7 +178,27 @@ public class MecanumDrive {
                 newX,
                 newY,
                 AngleUnit.RADIANS,
-                heading
+                headingRadians
+        );
+    }
+
+    // ----------------------------
+    // VISION POSITION CORRECTION (Limelight -> Encoders)
+    // ----------------------------
+
+    /*
+     * Call whenever Limelight has a valid AprilTag detection, using the
+     * field X/Y it computed from the tag. Heading is left untouched here
+     * since that correction already happened in IMUOrthogonalNew.
+     */
+    public void applyVisionCorrection(double xInches, double yInches) {
+
+        robotPose = new Pose2D(
+                DistanceUnit.INCH,
+                xInches,
+                yInches,
+                AngleUnit.RADIANS,
+                robotPose.getHeading(AngleUnit.RADIANS)
         );
     }
 
@@ -243,9 +239,7 @@ public class MecanumDrive {
         return robotPose.getHeading(AngleUnit.DEGREES);
     }
 
-    public void resetPose(IMU imu) {
-
-        imu.resetYaw();
+    public void resetPose() {
 
         robotPose = new Pose2D(
                 DistanceUnit.INCH,
@@ -263,14 +257,6 @@ public class MecanumDrive {
         previousRB = rightBackMotor.getCurrentPosition();
     }
 
-    /*
-     * Sets the stored XY pose.
-     *
-     * IMPORTANT:
-     * The next updateOdometry() call will use the IMU heading as the
-     * heading source. If you want an arbitrary field heading that differs
-     * from the raw IMU yaw, add a heading offset to your IMU subsystem.
-     */
     public void setPose(double x, double y, double headingRadians) {
 
         robotPose = new Pose2D(

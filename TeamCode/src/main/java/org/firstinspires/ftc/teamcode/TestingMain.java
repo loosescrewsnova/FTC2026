@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Subsystems.IMUOrthogonalNew;
+import org.firstinspires.ftc.teamcode.Subsystems.LimelightLocalizer;
 import org.firstinspires.ftc.teamcode.Subsystems.MecanumDrive;
 
 @TeleOp(name = "Joystick Operations")
@@ -11,6 +12,7 @@ public class TestingMain extends OpMode {
 
     private MecanumDrive mecanumDrive;
     private IMUOrthogonalNew imuOrthogonal;
+    private LimelightLocalizer limelightLocalizer;
 
     private double endGameStart;
     private boolean isEndGame;
@@ -20,6 +22,7 @@ public class TestingMain extends OpMode {
 
         mecanumDrive = new MecanumDrive(hardwareMap);
         imuOrthogonal = new IMUOrthogonalNew(hardwareMap);
+        limelightLocalizer = new LimelightLocalizer(hardwareMap);
 
         isEndGame = false;
 
@@ -29,6 +32,8 @@ public class TestingMain extends OpMode {
 
     @Override
     public void start() {
+
+        limelightLocalizer.start();
 
         endGameStart = getRuntime() + 90;
     }
@@ -42,8 +47,24 @@ public class TestingMain extends OpMode {
 
         mecanumDrive.mecanumDrive(y, x, rx);
 
-        // Update odometry using the IMU
-        mecanumDrive.updateOdometry(imuOrthogonal.getIMU());
+        // 1. Limelight reads AprilTags and updates the IMU's heading offset.
+        limelightLocalizer.update(imuOrthogonal.getYawDegrees());
+
+        if (limelightLocalizer.hasValidTarget()) {
+
+            imuOrthogonal.correctYaw(
+                    limelightLocalizer.getFieldHeadingRadians()
+            );
+
+            mecanumDrive.applyVisionCorrection(
+                    limelightLocalizer.getFieldXInches(),
+                    limelightLocalizer.getFieldYInches()
+            );
+        }
+
+        // 2. The (possibly corrected) IMU heading updates the encoders'
+        //    position calculation.
+        mecanumDrive.updateOdometry(imuOrthogonal.getYawRadians());
 
         if (gamepad1.y) {
             imuOrthogonal.resetYaw();
@@ -134,6 +155,11 @@ public class TestingMain extends OpMode {
                 "Heading",
                 "%.2f Deg",
                 mecanumDrive.getHeadingDegrees()
+        );
+
+        telemetry.addData(
+                "Vision Target",
+                limelightLocalizer.hasValidTarget()
         );
 
         telemetry.addData(

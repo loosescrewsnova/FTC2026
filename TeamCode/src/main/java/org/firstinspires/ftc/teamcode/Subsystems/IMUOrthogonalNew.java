@@ -15,6 +15,19 @@ public class IMUOrthogonalNew {
     private final RevHubOrientationOnRobot.LogoFacingDirection logoDirection;
     private final RevHubOrientationOnRobot.UsbFacingDirection usbDirection;
 
+    // ----------------------------
+    // VISION HEADING CORRECTION
+    // ----------------------------
+
+    /*
+     * Raw IMU yaw drifts slowly over a match (gyro bias). Whenever
+     * Limelight sees a valid AprilTag, correctYaw() is called with the
+     * vision-derived heading, and this offset updates so getYawRadians()/
+     * getYawDegrees() report a corrected heading without ever touching
+     * the physical IMU itself.
+     */
+    private double yawOffsetRadians = 0.0;
+
     public IMUOrthogonalNew(HardwareMap hardwareMap) {
 
         imu = hardwareMap.get(IMU.class, "imu");
@@ -38,22 +51,49 @@ public class IMUOrthogonalNew {
 
     public void resetYaw() {
         imu.resetYaw();
+        yawOffsetRadians = 0.0;
     }
 
-    public double getYawDegrees() {
+    // ----------------------------
+    // CORRECTED YAW (Limelight -> IMU)
+    // ----------------------------
 
-        YawPitchRollAngles orientation =
-                imu.getRobotYawPitchRollAngles();
-
-        return orientation.getYaw(AngleUnit.DEGREES);
+    /*
+     * Call whenever Limelight has a valid AprilTag detection.
+     * visionYawRadians should be the field-relative heading Limelight
+     * computed from the tag (Pose3D botpose orientation).
+     */
+    public void correctYaw(double visionYawRadians) {
+        yawOffsetRadians = normalizeAngle(visionYawRadians - getRawYawRadians());
     }
 
-    public double getYawRadians() {
+    private double getRawYawRadians() {
 
         YawPitchRollAngles orientation =
                 imu.getRobotYawPitchRollAngles();
 
         return orientation.getYaw(AngleUnit.RADIANS);
+    }
+
+    public double getYawRadians() {
+        return normalizeAngle(getRawYawRadians() + yawOffsetRadians);
+    }
+
+    public double getYawDegrees() {
+        return Math.toDegrees(getYawRadians());
+    }
+
+    private double normalizeAngle(double angle) {
+
+        while (angle > Math.PI) {
+            angle -= 2.0 * Math.PI;
+        }
+
+        while (angle < -Math.PI) {
+            angle += 2.0 * Math.PI;
+        }
+
+        return angle;
     }
 
     public double getPitchDegrees() {
