@@ -36,9 +36,9 @@ public class TestingMain extends OpMode {
     @Override
     public void loop() {
 
-        double y = -gamepad1.left_stick_y;
-        double x = gamepad1.left_stick_x;
-        double rx = gamepad1.right_stick_x;
+        double y = gamepad1.left_stick_y;
+        double x = -gamepad1.left_stick_x;
+        double rx = -gamepad1.right_stick_x;
 
         mecanumDrive.mecanumDrive(y, x, rx);
 
