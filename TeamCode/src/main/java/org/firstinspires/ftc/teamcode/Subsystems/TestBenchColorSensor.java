@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-public class TestCS {
+public class TestBenchColorSensor {
 
     NormalizedColorSensor colorSensor;
 
@@ -16,12 +16,14 @@ public class TestCS {
 
         BLUE,
 
-        GREEN,
+        YELLOW,
 
         UNKNOWN
     }
     public void init(HardwareMap hardwareMap){
         colorSensor = hardwareMap.get(NormalizedColorSensor.class, "sensor_color_distance");
+
+        colorSensor.setGain(8);
     }
 
 
@@ -31,25 +33,37 @@ public class TestCS {
 
 
 
-            float normRed, normGreen, normBlue;
+            float normRed, normYellow, normBlue;
             normRed=colors.red/colors.alpha;
-            normGreen=colors.green/colors.alpha;
+            normYellow=colors.green/colors.alpha;
             normBlue=colors.blue/colors.alpha;
 
 
             telemetry.addData("red",normRed);
-            telemetry.addData("green",normGreen);
+            telemetry.addData("green",normYellow);
             telemetry.addData("blue", normBlue);
 
             //TODO add if statements for specific colors added
             /*
             red, green, blue
-            RED =
-            GREEN =
-            BLUE =
-             */
-            return DetectedColor.UNKNOWN;
+            RED = >.35, <.3, <.3 (This is the R-red g-green b-blue )
+            Yellow = >.5, >.9, <.6
+            BLUE = <.2, < .5, > .5
+            */
 
+            if (normRed > 0.35 && normYellow < 0.3 && normBlue < 0.3 ){
+                return DetectedColor.RED;
 
+            }
+            else if (normBlue <0.2 && normYellow <0.5 && normBlue> 0.5){
+                return DetectedColor.BLUE;
+
+        }
+            else if(normRed <0.2 && normYellow<0.5 && normBlue >0.5){
+               return  DetectedColor.YELLOW;
+            }
+            else {
+                return DetectedColor.UNKNOWN;
+            }
     }
 }
