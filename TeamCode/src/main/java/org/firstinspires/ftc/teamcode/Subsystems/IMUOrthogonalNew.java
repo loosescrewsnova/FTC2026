@@ -34,7 +34,7 @@ public class IMUOrthogonalNew {
 
         // Define how the Control Hub is mounted
         logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.UP;
-        usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
+        usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.RIGHT;
 
         RevHubOrientationOnRobot orientationOnRobot =
                 new RevHubOrientationOnRobot(
