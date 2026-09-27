@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Subsystems.IMUOrthogonalNew;
 import org.firstinspires.ftc.teamcode.Subsystems.LimelightLocalizer;
 import org.firstinspires.ftc.teamcode.Subsystems.MecanumDrive;
+import org.firstinspires.ftc.teamcode.Subsystems.PIDController;
 
 @TeleOp(name = "Joystick Operations")
 public class Main extends OpMode {
@@ -13,9 +14,27 @@ public class Main extends OpMode {
     private MecanumDrive mecanumDrive;
     private IMUOrthogonalNew imuOrthogonal;
     private LimelightLocalizer limelightLocalizer;
+    private PIDController turretPID;
 
     private double endGameStart;
     private boolean isEndGame;
+
+    // ----------------------------
+    // TURRET MODE TUNING
+    // ----------------------------
+    // Tune kP first (start small, increase until tracking is snappy
+    // without oscillating back and forth), then add a little kD to damp
+    // any overshoot. kI is rarely needed for this kind of angular
+    // tracking - leave it at 0 unless you see a persistent steady-state
+    // error that P and D alone won't clear.
+    private static final double TURRET_kP = 0.03;
+    private static final double TURRET_kI = 0.0;
+    private static final double TURRET_kD = 0.002;
+
+    // Turret rotation power is capped well below full power - this is a
+    // fine tracking correction layered under normal driving, not a full
+    // drive command.
+    private static final double TURRET_MAX_POWER = 0.5;
 
     @Override
     public void init() {
@@ -23,6 +42,7 @@ public class Main extends OpMode {
         mecanumDrive = new MecanumDrive(hardwareMap);
         imuOrthogonal = new IMUOrthogonalNew(hardwareMap);
         limelightLocalizer = new LimelightLocalizer(hardwareMap);
+        turretPID = new PIDController(TURRET_kP, TURRET_kI, TURRET_kD);
 
         isEndGame = false;
 
@@ -43,14 +63,54 @@ public class Main extends OpMode {
 
         double y = gamepad1.left_stick_y;
         double x = -gamepad1.left_stick_x;
-        double rx = -gamepad1.right_stick_x;
+        double rx;
 
-        mecanumDrive.mecanumDrive(y, x, rx);
+        // Hold right bumper to enable turret mode: the robot auto-rotates
+        // to keep the AprilTag centered in the Limelight's view while you
+        // still freely control translation (y, x) with the sticks. Let go
+        // of the bumper at any time to take back manual rotation control.
+        boolean turretModeRequested = gamepad1.right_bumper;
 
         // 1. Limelight reads AprilTags and updates the IMU's heading offset.
         limelightLocalizer.update(imuOrthogonal.getYawDegrees());
 
-        if (limelightLocalizer.hasValidTarget()) {
+        boolean hasTarget = limelightLocalizer.hasValidTarget();
+        boolean turretActive = turretModeRequested && hasTarget;
+
+        if (turretActive) {
+
+            // tx: degrees between the crosshair and the tag. 0 = centered,
+            // positive = tag is to the right. Driving this to 0 with the
+            // PID is what keeps the tag in view while you strafe.
+            double txError = limelightLocalizer.getTx();
+
+            double turretPower = turretPID.calculate(txError);
+
+            turretPower = Math.max(
+                    -TURRET_MAX_POWER,
+                    Math.min(TURRET_MAX_POWER, turretPower)
+            );
+
+            rx = turretPower;
+
+            // If the robot turns AWAY from the tag instead of toward it
+            // once you test this, the sign is flipped for this
+            // drivetrain's rotation convention - swap in this line:
+            // rx = -turretPower;
+
+        } else {
+
+            rx = -gamepad1.right_stick_x;
+
+            // Reset whenever turret mode is off or the tag isn't visible,
+            // so stale integral/derivative state doesn't cause a jerky
+            // snap the next time turret mode engages.
+            turretPID.reset();
+        }
+
+        mecanumDrive.mecanumDrive(y, x, rx);
+
+        if (hasTarget) {
 
             imuOrthogonal.correctYaw(
                     limelightLocalizer.getFieldHeadingRadians()
@@ -159,7 +219,12 @@ public class Main extends OpMode {
 
         telemetry.addData(
                 "Vision Target",
-                limelightLocalizer.hasValidTarget()
+                hasTarget
+        );
+
+        telemetry.addData(
+                "Turret Mode Active",
+                turretActive
         );
 
         telemetry.addData(

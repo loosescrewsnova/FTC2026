@@ -72,6 +72,22 @@ public class LimelightLocalizer {
         return botPose.getOrientation().getYaw(AngleUnit.RADIANS);
     }
 
+    /*
+     * Horizontal offset (degrees) from the Limelight's crosshair to the
+     * target: 0 = tag is centered in frame, positive = tag is to the
+     * right, negative = tag is to the left.
+     *
+     * This is the error signal for the turret-mode PID in Main. It comes
+     * straight from the 2D image solve (not the full 3D botpose), so it's
+     * lower-latency and stays valid even on frames where the fiducial
+     * pose solve itself is noisier.
+     *
+     * Only call this when hasValidTarget() is true.
+     */
+    public double getTx() {
+        return latestResult.getTx();
+    }
+
     public LLResult getLatestResult() {
         return latestResult;
     }
