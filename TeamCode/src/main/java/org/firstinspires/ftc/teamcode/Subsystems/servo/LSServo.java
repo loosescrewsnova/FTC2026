@@ -4,15 +4,15 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 public class LSServo {
-    private final Servo clawServo;
+    private final Servo LSServo;
     private boolean isOpen;
     private boolean isTogglePressed;
     private boolean wasTogglePressed;
     public LSServo(HardwareMap hardwareMap) {
 
-        clawServo = hardwareMap.get(Servo.class, ClawServoConstants.CLAW_SERVO_NAME);
+        LSServo = hardwareMap.get(Servo.class, LSServoConstants.LS_SERVO_NAME);
         isOpen = false;
-        clawServo.setPosition(ClawServoConstants.CLOSED_POSITION);
+        LSServo.setPosition(LSServoConstants.CLOSED_POSITION);
     }
 
     public void toggle(Gamepad gamepad) {
@@ -25,9 +25,9 @@ public class LSServo {
             isOpen = !isOpen;
 
             if(isOpen) {
-                clawServo.setPosition(ClawServoConstants.OPEN_POSITION);
+                LSServo.setPosition(LSServoConstants.OPEN_POSITION);
             } else {
-                clawServo.setPosition(ClawServoConstants.CLOSED_POSITION);
+                LSServo.setPosition(LSServoConstants.CLOSED_POSITION);
             }
         }
 
@@ -35,7 +35,7 @@ public class LSServo {
     }
 
     public double getPosition() {
-        return clawServo.getPosition();
+        return LSServo.getPosition();
     }
 
     //isOpen can be removed after testing getPosition
