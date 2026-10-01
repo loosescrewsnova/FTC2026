@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Subsystems.IMUOrthogonalNew;
+import org.firstinspires.ftc.teamcode.Subsystems.Intake;
 import org.firstinspires.ftc.teamcode.Subsystems.LimelightLocalizer;
 import org.firstinspires.ftc.teamcode.Subsystems.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Subsystems.PIDController;
@@ -12,6 +13,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.PIDController;
 public class Main extends OpMode {
 
     private MecanumDrive mecanumDrive;
+    private Intake intake;
     private IMUOrthogonalNew imuOrthogonal;
     private LimelightLocalizer limelightLocalizer;
     private PIDController turretPID;
@@ -40,6 +42,7 @@ public class Main extends OpMode {
     public void init() {
 
         mecanumDrive = new MecanumDrive(hardwareMap);
+        intake = new Intake(hardwareMap);
         imuOrthogonal = new IMUOrthogonalNew(hardwareMap);
         limelightLocalizer = new LimelightLocalizer(hardwareMap);
         turretPID = new PIDController(TURRET_kP, TURRET_kI, TURRET_kD);
@@ -60,6 +63,8 @@ public class Main extends OpMode {
 
     @Override
     public void loop() {
+
+        intake.intake(gamepad1);
 
         double y = gamepad1.left_stick_y;
         double x = -gamepad1.left_stick_x;
@@ -154,6 +159,11 @@ public class Main extends OpMode {
         telemetry.addData(
                 "Back Right Power",
                 mecanumDrive.getRightBackPower()
+        );
+
+        telemetry.addData(
+                "Intake Power",
+                intake.getIntakePower()
         );
 
         telemetry.addData(
