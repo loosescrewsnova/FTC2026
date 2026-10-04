@@ -5,9 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Subsystems.IMUOrthogonalNew;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake;
-import org.firstinspires.ftc.teamcode.Subsystems.LimelightLocalizer;
 import org.firstinspires.ftc.teamcode.Subsystems.MecanumDrive;
-import org.firstinspires.ftc.teamcode.Subsystems.PIDController;
 
 @TeleOp(name = "No Shooter Code")
 public class IntakeStarterBotMain extends OpMode {
@@ -72,12 +70,20 @@ public class IntakeStarterBotMain extends OpMode {
         // of the bumper at any time to take back manual rotation control.
         boolean turretModeRequested = gamepad1.right_bumper;
 
-        // 2. The (possibly corrected) IMU heading updates the encoders'
-        //    position calculation.
+        // 2. The (possibly corrected) IMU heading updates the odometry
+        //    pods' position calculation.
         mecanumDrive.updateOdometry(imuOrthogonal.getYawRadians());
 
         if (gamepad1.y) {
             imuOrthogonal.resetYaw();
+
+            // Yaw just snapped to 0, so tell the odometry about it.
+            // Otherwise, the heading jump gets treated as a real rotation.
+            mecanumDrive.setPose(
+                    mecanumDrive.getX(),
+                    mecanumDrive.getY(),
+                    0.0
+            );
         }
 
         if (getRuntime() >= endGameStart && !isEndGame) {
@@ -170,6 +176,16 @@ public class IntakeStarterBotMain extends OpMode {
                 "Heading",
                 "%.2f Deg",
                 mecanumDrive.getHeadingDegrees()
+        );
+
+        telemetry.addData(
+                "Forward Pod Ticks",
+                mecanumDrive.getForwardPodTicks()
+        );
+
+        telemetry.addData(
+                "Strafe Pod Ticks",
+                mecanumDrive.getStrafePodTicks()
         );
 
         telemetry.addData(
