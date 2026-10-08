@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.LimelightLocalizer;
 import org.firstinspires.ftc.teamcode.Subsystems.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Subsystems.PIDController;
 import org.firstinspires.ftc.teamcode.Subsystems.shooter.Shooter;
-import org.firstinspires.ftc.teamcode.Subsystems.Feeder;
+
 
 @TeleOp(name = "Joystick Operations")
 public class Main extends OpMode {
@@ -22,7 +22,7 @@ public class Main extends OpMode {
     private PIDController turretPID;
 
     private Shooter shooter;
-    private Feeder feeder;
+
 
     private double endGameStart;
     private boolean isEndGame;
@@ -53,7 +53,7 @@ public class Main extends OpMode {
         limelightLocalizer = new LimelightLocalizer(hardwareMap);
         turretPID = new PIDController(TURRET_kP, TURRET_kI, TURRET_kD);
         shooter = new Shooter(hardwareMap);
-        feeder = new Feeder(hardwareMap);
+
 
         isEndGame = false;
 
@@ -74,7 +74,7 @@ public class Main extends OpMode {
 
         intake.intake(gamepad1);
         shooter.shooter(gamepad1);
-        feeder.feeder(gamepad1);
+
 
         double y = gamepad1.left_stick_y;
         double x = -gamepad1.left_stick_x;

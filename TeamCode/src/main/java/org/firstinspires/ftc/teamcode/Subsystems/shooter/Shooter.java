@@ -22,15 +22,16 @@ public class Shooter {
 
     public void shooter(Gamepad gamepad) {
 
+
         // Button was just pressed
-        if (gamepad.y && !buttonWasPressed) {
+        if (gamepad.right_trigger > 0.5 && !buttonWasPressed) {
 
             buttonTimer.reset();
             buttonWasPressed = true;
         }
 
         // Button is being held
-        if (gamepad.y && shooterSpeed < ShooterConstants.MAX_SHOOTER_POWER) {
+        if (gamepad.right_trigger > 0.5 && shooterSpeed < ShooterConstants.MAX_SHOOTER_POWER) {
 
             double heldTime = buttonTimer.seconds();
 
@@ -44,7 +45,7 @@ public class Shooter {
         }
 
         // Button was released
-        if (!gamepad.y) {
+        if (!(gamepad.right_trigger > 0.5)) {
 
             shooterSpeed = ShooterConstants.IDLE_POWER;
             shooterMotor.setPower(ShooterConstants.IDLE_POWER);
