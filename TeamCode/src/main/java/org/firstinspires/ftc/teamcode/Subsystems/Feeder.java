@@ -22,9 +22,11 @@ public class Feeder {
 
     public void feeder(Gamepad gamepad) {
 
-        // Hold right trigger to run the feeder, release to stop
-        feederPower = (gamepad.right_trigger > TRIGGER_THRESHOLD) ? FEED_POWER : 0;
-        feederMotor.setPower(feederPower);
+        feederMotor.setPower(0);
+
+        while(gamepad.x) {
+            feederMotor.setPower(1);
+        }
     }
 
     public double getFeederPower() {

@@ -23,9 +23,11 @@ public class Intake {
 
     public void intake(Gamepad gamepad) {
 
-        // Hold left trigger to run the intake, release to stop
-        intakePower = (gamepad.left_trigger > TRIGGER_THRESHOLD) ? INTAKE_POWER : 0;
-        intakeMotor.setPower(intakePower);
+        intakeMotor.setPower(0);
+
+        while(gamepad.b) {
+            intakeMotor.setPower(1);
+        }
     }
 
     public double getIntakePower() {
