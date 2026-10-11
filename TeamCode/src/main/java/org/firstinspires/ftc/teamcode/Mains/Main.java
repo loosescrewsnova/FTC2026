@@ -80,8 +80,8 @@ public class Main extends OpMode {
         shooter.shooter(gamepad2);
 
 
-        double y = gamepad1.left_stick_y;
-        double x = -gamepad1.left_stick_x;
+        double y = gamepad1.right_stick_y;
+        double x = -gamepad1.right_stick_x;
         double rx;
 
         // Hold right bumper to enable turret mode: the robot auto-rotates
@@ -119,7 +119,7 @@ public class Main extends OpMode {
 
         } else {
 
-            rx = -gamepad1.right_stick_x;
+            rx = -gamepad1.left_stick_x;
 
             // Reset whenever turret mode is off or the tag isn't visible,
             // so stale integral/derivative state doesn't cause a jerky
