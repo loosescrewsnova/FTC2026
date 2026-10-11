@@ -9,48 +9,53 @@ public class Shooter {
 
     private final DcMotor shooterMotor;
 
-    private final ElapsedTime buttonTimer = new ElapsedTime();
+    // Speed range and how long a full sweep takes while the d-pad is held
+    private static final double MIN_SPEED = 0.0;
+    private static final double MAX_SPEED = 1.0;
+    private static final double FULL_SWEEP_SECONDS = 10.0;
 
-    private boolean buttonWasPressed = false;
+    // Units of power per second: (1.0 - 0.0) / 10 s = 0.1 per second
+    private static final double RAMP_RATE =
+            (MAX_SPEED - MIN_SPEED) / FULL_SWEEP_SECONDS;
 
-    private double shooterSpeed = ShooterConstants.IDLE_POWER;
+    // Safety cap on dt so a long hiccup between loops can't cause a big jump
+    private static final double MAX_DT = 0.1;
+
+    private final ElapsedTime timer = new ElapsedTime();
+    private double lastTime;
+
+    private double shooterSpeed = MIN_SPEED;
 
     public Shooter(HardwareMap hardwareMap) {
+        shooterMotor = hardwareMap.get(DcMotor.class, "shooterMotor");
 
-        shooterMotor = hardwareMap.get(DcMotor.class, ShooterConstants.SHOOTER_MOTOR_NAME);
+        // Flip to REVERSE if the shooter spins the wrong way
+        shooterMotor.setDirection(DcMotor.Direction.FORWARD);
+        shooterMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        timer.reset();
+        lastTime = timer.seconds();
     }
 
     public void shooter(Gamepad gamepad) {
 
-        // Button was just pressed
-        if (gamepad.y && !buttonWasPressed) {
+        // Time since the last loop, so the ramp is based on real time
+        double now = timer.seconds();
+        double dt = Math.min(now - lastTime, MAX_DT);
+        lastTime = now;
 
-            buttonTimer.reset();
-            buttonWasPressed = true;
+        // Hold d-pad right to speed up, d-pad left to slow down
+        if (gamepad.dpad_right) {
+            shooterSpeed += RAMP_RATE * dt;
+        }
+        if (gamepad.dpad_left) {
+            shooterSpeed -= RAMP_RATE * dt;
         }
 
-        // Button is being held
-        if (gamepad.y && shooterSpeed < ShooterConstants.MAX_SHOOTER_POWER) {
+        // Keep it inside the allowed range
+        shooterSpeed = Math.max(MIN_SPEED, Math.min(MAX_SPEED, shooterSpeed));
 
-            double heldTime = buttonTimer.seconds();
-
-            // Increase power based on how long the button is held
-            shooterSpeed = heldTime * ShooterConstants.POWER_RAMP_RATE;
-
-            // Cap power at the configured maximum
-            //shooterSpeed = Math.min(shooterSpeed, ShooterConstants.MAX_SHOOTER_POWER); NOT required as the if condition does not run the unnecessary code
-
-            shooterMotor.setPower(shooterSpeed);
-        }
-
-        // Button was released
-        if (!gamepad.y) {
-
-            shooterSpeed = ShooterConstants.IDLE_POWER;
-            shooterMotor.setPower(ShooterConstants.IDLE_POWER);
-
-            buttonWasPressed = false;
-        }
+        shooterMotor.setPower(shooterSpeed);
     }
 
     public double getShooterSpeed() {
