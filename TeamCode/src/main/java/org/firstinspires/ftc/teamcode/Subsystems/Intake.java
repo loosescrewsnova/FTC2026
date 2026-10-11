@@ -6,30 +6,25 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class Intake {
 
-    private DcMotor intakeMotor;
-    private double intakePower;
+    private final DcMotor intakeMotor;
+    private double intakePower = 0;
 
-    boolean wasA, isA, isB, wasB;
+    // Trigger values range 0.0-1.0; anything above this counts as "held"
+    private static final double TRIGGER_THRESHOLD = 0.1;
+    private static final double INTAKE_POWER = 1.0;
 
     public Intake(HardwareMap hardwareMap) {
         intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");
 
+        // Flip to FORWARD if the intake spins the wrong way
         intakeMotor.setDirection(DcMotor.Direction.REVERSE);
-
-        intakePower = 1;
+        intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     public void intake(Gamepad gamepad) {
 
-        isA = gamepad.a;
-        isB = gamepad.b;
-        if (isB && !wasB) {
-            intakePower = -1;
-        } else if (isA && !wasA) {
-            intakePower = 1;
-        }
-        wasA = isA;
-        wasB = isB;
+        // Hold left trigger to run the intake, release to stop
+        intakePower = (gamepad.left_trigger > TRIGGER_THRESHOLD) ? INTAKE_POWER : 0;
         intakeMotor.setPower(intakePower);
     }
 

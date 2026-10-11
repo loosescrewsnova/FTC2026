@@ -8,10 +8,8 @@ public class Feeder {
 
     private final DcMotor feederMotor;
     private double feederPower = 0;
-    private boolean feederRunning = false;
 
-    private boolean isX, wasX;
-
+    private static final double TRIGGER_THRESHOLD = 0.1;
     private static final double FEED_POWER = 1.0;
 
     public Feeder(HardwareMap hardwareMap) {
@@ -24,17 +22,9 @@ public class Feeder {
 
     public void feeder(Gamepad gamepad) {
 
-        isX = gamepad.x;
-
-        // X was just pressed (up -> down): flip on/off
-        if (isX && !wasX) {
-            feederRunning = !feederRunning;
-        }
-
-        feederPower = feederRunning ? FEED_POWER : 0;
+        // Hold right trigger to run the feeder, release to stop
+        feederPower = (gamepad.right_trigger > TRIGGER_THRESHOLD) ? FEED_POWER : 0;
         feederMotor.setPower(feederPower);
-
-        wasX = isX;
     }
 
     public double getFeederPower() {

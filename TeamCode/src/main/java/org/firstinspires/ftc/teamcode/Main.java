@@ -3,19 +3,20 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.Subsystems.Feeder;
 import org.firstinspires.ftc.teamcode.Subsystems.IMUOrthogonalNew;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake;
 import org.firstinspires.ftc.teamcode.Subsystems.LimelightLocalizer;
 import org.firstinspires.ftc.teamcode.Subsystems.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Subsystems.PIDController;
 import org.firstinspires.ftc.teamcode.Subsystems.shooter.Shooter;
-import org.firstinspires.ftc.teamcode.Subsystems.Feeder;
 
 @TeleOp(name = "Joystick Operations")
 public class Main extends OpMode {
 
     private MecanumDrive mecanumDrive;
     private Intake intake;
+    private Feeder feeder;
     private IMUOrthogonalNew imuOrthogonal;
     private LimelightLocalizer limelightLocalizer;
     private PIDController turretPID;
@@ -47,6 +48,7 @@ public class Main extends OpMode {
 
         mecanumDrive = new MecanumDrive(hardwareMap);
         intake = new Intake(hardwareMap);
+        feeder = new Feeder(hardwareMap);
         imuOrthogonal = new IMUOrthogonalNew(hardwareMap);
         limelightLocalizer = new LimelightLocalizer(hardwareMap);
         turretPID = new PIDController(TURRET_kP, TURRET_kI, TURRET_kD);
@@ -69,7 +71,9 @@ public class Main extends OpMode {
     @Override
     public void loop() {
 
+        // Hold left trigger = intake, hold right trigger = feeder
         intake.intake(gamepad1);
+        feeder.feeder(gamepad1);
         shooter.shooter(gamepad1);
 
         double y = gamepad1.left_stick_y;
@@ -147,111 +151,33 @@ public class Main extends OpMode {
             isEndGame = true;
         }
 
+        // ----------------------------
+        // TELEMETRY (kept short on purpose)
+        // ----------------------------
         telemetry.addData(
-                "Front Left Power",
-                mecanumDrive.getLeftFrontPower()
-        );
-
-        telemetry.addData(
-                "Front Right Power",
-                mecanumDrive.getRightFrontPower()
-        );
-
-        telemetry.addData(
-                "Back Left Power",
-                mecanumDrive.getLeftBackPower()
-        );
-
-        telemetry.addData(
-                "Back Right Power",
-                mecanumDrive.getRightBackPower()
-        );
-
-        telemetry.addData(
-                "Intake Power",
-                intake.getIntakePower()
-        );
-
-        telemetry.addData(
-                "Hub Orientation",
-                "Logo=%s USB=%s",
-                imuOrthogonal.getLogoDirection(),
-                imuOrthogonal.getUsbDirection()
-        );
-
-        telemetry.addData(
-                "Yaw (Z)",
-                "%.2f Deg.",
-                imuOrthogonal.getYawDegrees()
-        );
-
-        telemetry.addData(
-                "Pitch (X)",
-                "%.2f Deg.",
-                imuOrthogonal.getPitchDegrees()
-        );
-
-        telemetry.addData(
-                "Roll (Y)",
-                "%.2f Deg.",
-                imuOrthogonal.getRollDegrees()
-        );
-
-        telemetry.addData(
-                "Yaw Velocity",
-                "%.2f Deg/Sec",
-                imuOrthogonal.getYawVelocity()
-        );
-
-        telemetry.addData(
-                "Pitch Velocity",
-                "%.2f Deg/Sec",
-                imuOrthogonal.getPitchVelocity()
-        );
-
-        telemetry.addData(
-                "Roll Velocity",
-                "%.2f Deg/Sec",
-                imuOrthogonal.getRollVelocity()
-        );
-
-        telemetry.addData(
-                "X",
-                "%.2f in",
-                mecanumDrive.getX()
-        );
-
-        telemetry.addData(
-                "Y",
-                "%.2f in",
-                mecanumDrive.getY()
-        );
-
-        telemetry.addData(
-                "Heading",
-                "%.2f Deg",
+                "Pose",
+                "X %.1f in | Y %.1f in | H %.0f deg",
+                mecanumDrive.getX(),
+                mecanumDrive.getY(),
                 mecanumDrive.getHeadingDegrees()
         );
 
         telemetry.addData(
-                "Vision Target",
-                hasTarget
-        );
-
-        telemetry.addData(
-                "Turret Mode Active",
-                turretActive
-        );
-
-        telemetry.addData(
-                "Is it Endgame",
-                isEndGame
-        );
-
-        telemetry.addData(
-                "Shooter Power",
+                "Intake / Feeder / Shooter",
+                "%.2f / %.2f / %.2f",
+                intake.getIntakePower(),
+                feeder.getFeederPower(),
                 shooter.getShooterSpeed()
         );
+
+        telemetry.addData(
+                "Vision / Turret",
+                "%s / %s",
+                hasTarget ? "TAG" : "none",
+                turretActive ? "ON" : "off"
+        );
+
+        telemetry.addData("Endgame", isEndGame);
 
         telemetry.update();
     }
