@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.Intake;
 import org.firstinspires.ftc.teamcode.Subsystems.LimelightLocalizer;
 import org.firstinspires.ftc.teamcode.Subsystems.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Subsystems.PIDController;
-import org.firstinspires.ftc.teamcode.Subsystems.shooter.Shooter;
+import org.firstinspires.ftc.teamcode.Subsystems.Shooter;
 
 
 @TeleOp(name = "Joystick Operations")
