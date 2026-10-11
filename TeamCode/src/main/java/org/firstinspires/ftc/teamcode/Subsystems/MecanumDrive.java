@@ -26,6 +26,7 @@ public class MecanumDrive {
 
     // The pods are read through whatever motor port their encoder cable
     // is plugged into. These are the hardware-config names of those ports.
+    // They must match the names used in Pedro's TwoWheelConstants.
     // If a pod shares a port with a drive motor, use that drive motor's
     // config name here (and note that reversing that motor in code also
     // flips its encoder count - just flip the DIRECTION constant below).
@@ -104,8 +105,8 @@ public class MecanumDrive {
         rightBackMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         // Odometry pods.
-        forwardPod = hardwareMap.get(DcMotor.class, FORWARD_POD_NAME);
-        strafePod = hardwareMap.get(DcMotor.class, STRAFE_POD_NAME);
+        forwardPod = hardwareMap.get(DcMotor.class, "forwardPod");
+        strafePod = hardwareMap.get(DcMotor.class, "strafePod");
 
         forwardPod.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         strafePod.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

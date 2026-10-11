@@ -39,26 +39,11 @@ public class Shooter {
 
     public void shooter(Gamepad gamepad) {
 
-        // Time since the last loop, so the ramp is based on real time
-        double now = timer.seconds();
-        double dt = Math.min(now - lastTime, MAX_DT);
-        lastTime = now;
+        double shooterSpeed = 1;
 
-        // Hold d-pad right to speed up, d-pad left to slow down
-        if (gamepad.dpad_right) {
-            shooterSpeed += RAMP_RATE * dt;
+        if(gamepad.aWasPressed()) {
+
+            shooterSpeed = 0;
         }
-        if (gamepad.dpad_left) {
-            shooterSpeed -= RAMP_RATE * dt;
-        }
-
-        // Keep it inside the allowed range
-        shooterSpeed = Math.max(MIN_SPEED, Math.min(MAX_SPEED, shooterSpeed));
-
-        shooterMotor.setPower(shooterSpeed);
-    }
-
-    public double getShooterSpeed() {
-        return shooterSpeed;
     }
 }

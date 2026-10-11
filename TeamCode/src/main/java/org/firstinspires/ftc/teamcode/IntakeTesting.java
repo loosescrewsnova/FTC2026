@@ -8,32 +8,50 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 public class IntakeTesting extends OpMode {
 
     private DcMotor intakeMotor;
-    private double intakePower;
-
-    boolean wasA, isA, isB, wasB;
+    private DcMotor feederMotor;
 
     @Override
     public void init() {
-
+        // Initialize motors
         intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");
+        feederMotor = hardwareMap.get(DcMotor.class, "feederMotor");
 
-        intakeMotor.setDirection(DcMotor.Direction.REVERSE);
+        // Start with both motors stopped
+        intakeMotor.setPower(0);
+        feederMotor.setPower(0);
 
-        intakePower = 1;
+        telemetry.addData("Status", "Initialized");
+        telemetry.update();
     }
 
     @Override
     public void loop() {
 
-        isA = gamepad1.a;
-        isB = gamepad1.b;
-        if (isB && !wasB) {
-            intakePower = -1;
-        } else if (isA && !wasA) {
-            intakePower = 1;
+        // Right bumper: Run intake
+        if (gamepad1.right_bumper) {
+            intakeMotor.setPower(1.0);
+        } else {
+            intakeMotor.setPower(0);
         }
-        wasA = isA;
-        wasB = isB;
-        intakeMotor.setPower(intakePower);
+
+        // Left bumper: Run feeder
+        if (gamepad1.left_bumper) {
+            feederMotor.setPower(1.0);
+        } else {
+            feederMotor.setPower(0);
+        }
+
+        // Display motor powers
+        telemetry.addData("Intake Power", intakeMotor.getPower());
+        telemetry.addData("Feeder Power", feederMotor.getPower());
+        telemetry.addData("Right Bumper", "Intake");
+        telemetry.addData("Left Bumper", "Feeder");
+        telemetry.update();
+    }
+
+    @Override
+    public void stop() {
+        intakeMotor.setPower(0);
+        feederMotor.setPower(0);
     }
 }

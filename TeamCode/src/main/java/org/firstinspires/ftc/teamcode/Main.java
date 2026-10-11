@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.Subsystems.Feeder;
 import org.firstinspires.ftc.teamcode.Subsystems.IMUOrthogonalNew;
@@ -10,6 +11,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.LimelightLocalizer;
 import org.firstinspires.ftc.teamcode.Subsystems.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Subsystems.PIDController;
 import org.firstinspires.ftc.teamcode.Subsystems.shooter.Shooter;
+
 
 @TeleOp(name = "Joystick Operations")
 public class Main extends OpMode {
@@ -22,6 +24,7 @@ public class Main extends OpMode {
     private PIDController turretPID;
 
     private Shooter shooter;
+
 
     private double endGameStart;
     private boolean isEndGame;
@@ -54,6 +57,7 @@ public class Main extends OpMode {
         turretPID = new PIDController(TURRET_kP, TURRET_kI, TURRET_kD);
         shooter = new Shooter(hardwareMap);
 
+
         isEndGame = false;
 
         telemetry.addData("Status", "Initialized");
@@ -75,6 +79,7 @@ public class Main extends OpMode {
         intake.intake(gamepad1);
         feeder.feeder(gamepad1);
         shooter.shooter(gamepad1);
+
 
         double y = gamepad1.left_stick_y;
         double x = -gamepad1.left_stick_x;
