@@ -19,21 +19,9 @@ public class Shooter {
 
         double shooterSpeed = 1;
 
-        if(gamepad.dpad_left && !buttonWasPressed) {
+        if(gamepad.aWasPressed()) {
 
-
+            shooterSpeed = 0;
         }
-    }
-
-    public boolean isButtonWasPressed() {
-        return buttonWasPressed;
-    }
-
-    public void setButtonWasPressed(boolean buttonWasPressed) {
-        this.buttonWasPressed = buttonWasPressed;
-    }
-
-    public double getShooterSpeed(double shooterSpeed) {
-        return shooterSpeed;
     }
 }
