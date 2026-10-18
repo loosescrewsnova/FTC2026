@@ -6,34 +6,45 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Subsystems.Feeder;
 import org.firstinspires.ftc.teamcode.Subsystems.NoOdometryMecanum;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake;
+import org.firstinspires.ftc.teamcode.Subsystems.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Subsystems.shooter.Shooter;
 
-@TeleOp(name = "First Starter Bot Code3")
+@TeleOp(name = "Joystick Operations")
 public class NoLimelightMain extends OpMode {
 
-    private NoOdometryMecanum noOdometryMecanum;
+    // Subsystems
+    private MecanumDrive mecanumDrive;
     private Intake intake;
     private Feeder feeder;
     private Shooter shooter;
 
+    // Endgame
     private double endGameStart;
     private boolean isEndGame;
+
+    // Driver controls
+    private double y;
+    private double x;
+    private double rx;
 
     @Override
     public void init() {
 
-        noOdometryMecanum =
-                new NoOdometryMecanum(hardwareMap);
-
+        // Initialize all subsystems
+        mecanumDrive = new MecanumDrive(hardwareMap);
         intake = new Intake(hardwareMap);
 
         feeder = new Feeder(hardwareMap);
 
-        shooter = new Shooter(hardwareMap);
-
         isEndGame = false;
 
-        telemetry.addData("Status", "Initialized");
+        telemetry.addLine("Robot Initialized");
+        telemetry.addData("Drive", "Ready");
+        telemetry.addData("Intake", "Ready");
+        telemetry.addData("Feeder", "Ready");
+        telemetry.addData("Shooter", "Ready");
+        telemetry.addData("IMU", "Initialized");
+
         telemetry.update();
     }
 
@@ -41,67 +52,150 @@ public class NoLimelightMain extends OpMode {
     public void start() {
 
         // Endgame begins 90 seconds after TeleOp starts
-        endGameStart = getRuntime() + 90;
+        endGameStart = getRuntime() + 90.0;
+        isEndGame = false;
     }
 
     @Override
     public void loop() {
 
-        // ----------------------------
-        // INTAKE, FEEDER, AND SHOOTER
-        // ----------------------------
+        // =================================
+        // 1. DRIVETRAIN CONTROLS
+        // =================================
 
-        // Hold left trigger to run intake
-        intake.intake(gamepad1);
+        // Forward/backward
+        y = -gamepad1.right_stick_y;
 
-        // Hold right trigger to operate feeder
-        feeder.feeder(gamepad1);
+        // Strafe left/right
+        x = -gamepad1.right_stick_x;
 
-        // Shooter controls are handled by the Shooter subsystem
-        shooter.shooter(gamepad1);
+        // Rotation
+        rx = -gamepad1.left_stick_x;
 
-        // ----------------------------
-        // MECANUM DRIVE
-        // ----------------------------
+        // Send joystick inputs to the drivetrain
+        mecanumDrive.mecanumDrive(y, x, rx);
 
-        double y = -gamepad1.left_stick_y;
-        double x = -gamepad1.left_stick_x;
-        double rx = -gamepad1.right_stick_x;
+        // =================================
+        // 2. IMU AND ODOMETRY
+        // =================================
 
-        noOdometryMecanum.mecanumDrive(y, x, rx);
+        // Reset heading when Y is pressed
+        if (gamepad1.y) {
+            imuOrthogonal.resetYaw();
+        }
 
-        // ----------------------------
-        // ENDGAME RUMBLE
-        // ----------------------------
+        // Update odometry using the latest IMU heading
+        mecanumDrive.updateOdometry(
+                imuOrthogonal.getYawRadians()
+        );
+
+        // =================================
+        // 3. INTAKE, FEEDER, AND SHOOTER
+        // =================================
+
+        intake.intake(gamepad2);
+        feeder.feeder(gamepad2);
+        shooter.shooter(gamepad2);
+
+        // =================================
+        // 4. ENDGAME RUMBLE
+        // =================================
 
         if (getRuntime() >= endGameStart && !isEndGame) {
 
             gamepad1.rumbleBlips(3);
+            gamepad2.rumbleBlips(3);
 
             isEndGame = true;
         }
 
-        // ----------------------------
-        // TELEMETRY
-        // ----------------------------
+        // =================================
+        // 5. DRIVETRAIN TELEMETRY
+        // =================================
+
+        telemetry.addLine("===== DRIVETRAIN =====");
 
         telemetry.addData(
-                "Intake / Feeder / Shooter",
+                "Joystick Y / X / Rotation",
                 "%.2f / %.2f / %.2f",
-                intake.getIntakePower(),
-                feeder.getFeederPosition(),
+                y, x, rx
+        );
+
+        telemetry.addData(
+                "Robot X (in)",
+                "%.2f",
+                mecanumDrive.getX()
+        );
+
+        telemetry.addData(
+                "Robot Y (in)",
+                "%.2f",
+                mecanumDrive.getY()
+        );
+
+        telemetry.addData(
+                "Heading (degrees)",
+                "%.1f",
+                mecanumDrive.getHeadingDegrees()
+        );
+
+        // =================================
+        // 6. MECHANISM TELEMETRY
+        // =================================
+
+        telemetry.addLine("===== MECHANISMS =====");
+
+        telemetry.addData(
+                "Intake Power",
+                "%.2f",
+                intake.getIntakePower()
+        );
+
+        telemetry.addData(
+                "Feeder Power",
+                "%.2f",
+                feeder.getFeederPower()
+        );
+
+        telemetry.addData(
+                "Shooter Speed",
+                "%.2f",
                 shooter.getShooterSpeed()
         );
 
-        telemetry.addData("Endgame", isEndGame);
+        // =================================
+        // 7. MATCH TELEMETRY
+        // =================================
+
+        telemetry.addLine("===== MATCH STATUS =====");
 
         telemetry.addData(
-                "Drive LF / RF",
-                "%.2f / %.2f",
-                noOdometryMecanum.getLeftFrontPower(),
-                noOdometryMecanum.getRightFrontPower()
+                "Match Time (seconds)",
+                "%.1f",
+                getRuntime()
         );
 
+        telemetry.addData(
+                "Endgame",
+                isEndGame ? "ACTIVE" : "Not yet"
+        );
+
+        telemetry.addData(
+                "Time Until Endgame",
+                "%.1f seconds",
+                Math.max(0, endGameStart - getRuntime())
+        );
+
+        telemetry.update();
+    }
+
+    @Override
+    public void stop() {
+
+        // Stop drivetrain motors when the OpMode ends
+        mecanumDrive.mecanumDrive(0, 0, 0);
+
+        telemetry.addLine("OpMode Stopped");
         telemetry.update();
     }
 }

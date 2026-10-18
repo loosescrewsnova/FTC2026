@@ -24,10 +24,10 @@ public class Feeder {
 
     public void feeder(Gamepad gamepad) {
 
-        if (gamepad.right_trigger > TRIGGER_THRESHOLD) {
-            feederServo.setPosition(FEED_POSITION);
-        } else {
-            feederServo.setPosition(REST_POSITION);
+        feederMotor.setPower(0);
+
+        while(gamepad.x) {
+            feederMotor.setPower(1);
         }
     }
 

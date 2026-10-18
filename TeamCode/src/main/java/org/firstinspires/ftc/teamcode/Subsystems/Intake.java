@@ -32,14 +32,11 @@ public class Intake {
 
     public void intake(Gamepad gamepad) {
 
-        // Hold the left trigger to run the intake
-        if (gamepad.left_trigger > TRIGGER_THRESHOLD) {
-            intakePower = INTAKE_POWER;
-        } else {
-            intakePower = 0;
-        }
+        intakeMotor.setPower(0);
 
-        intakeMotor.setPower(intakePower);
+        while(gamepad.b) {
+            intakeMotor.setPower(1);
+        }
     }
 
     public double getIntakePower() {

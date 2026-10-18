@@ -75,20 +75,20 @@ public class Main extends OpMode {
     public void loop() {
 
         // Hold left trigger = intake, hold right trigger = feeder
-        intake.intake(gamepad1);
-        feeder.feeder(gamepad1);
-        shooter.shooter(gamepad1);
+        intake.intake(gamepad2);
+        feeder.feeder(gamepad2);
+        shooter.shooter(gamepad2);
 
 
-        double y = gamepad1.left_stick_y;
-        double x = -gamepad1.left_stick_x;
+        double y = gamepad1.right_stick_y;
+        double x = -gamepad1.right_stick_x;
         double rx;
 
         // Hold right bumper to enable turret mode: the robot auto-rotates
         // to keep the AprilTag centered in the Limelight's view while you
         // still freely control translation (y, x) with the sticks. Let go
         // of the bumper at any time to take back manual rotation control.
-        boolean turretModeRequested = gamepad1.right_bumper;
+        boolean turretModeRequested = gamepad2.right_bumper;
 
         // 1. Limelight reads AprilTags and updates the IMU's heading offset.
         limelightLocalizer.update(imuOrthogonal.getYawDegrees());
@@ -119,7 +119,7 @@ public class Main extends OpMode {
 
         } else {
 
-            rx = -gamepad1.right_stick_x;
+            rx = -gamepad1.left_stick_x;
 
             // Reset whenever turret mode is off or the tag isn't visible,
             // so stale integral/derivative state doesn't cause a jerky
@@ -145,13 +145,14 @@ public class Main extends OpMode {
         //    position calculation.
         mecanumDrive.updateOdometry(imuOrthogonal.getYawRadians());
 
-        if (gamepad1.y) {
+        if (gamepad2.y) {
             imuOrthogonal.resetYaw();
         }
 
         if (getRuntime() >= endGameStart && !isEndGame) {
 
             gamepad1.rumbleBlips(3);
+            gamepad2.rumbleBlips(3);
             isEndGame = true;
         }
 
