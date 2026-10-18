@@ -1,33 +1,37 @@
+
 package org.firstinspires.ftc.teamcode.Subsystems;
 
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 
 public class Feeder {
 
-    private final DcMotor feederMotor;
-    private double feederPower = 0;
+    private final Servo feederServo;
 
     private static final double TRIGGER_THRESHOLD = 0.1;
-    private static final double FEED_POWER = 1.0;
+
+    // Adjust these positions to match your robot
+    private static final double REST_POSITION = 0.0;
+    private static final double FEED_POSITION = 1.0;
 
     public Feeder(HardwareMap hardwareMap) {
-        feederMotor = hardwareMap.get(DcMotor.class, "feederMotor");
+        feederServo = hardwareMap.get(Servo.class, "feederServo");
 
-        // Flip to FORWARD if the feeder spins the wrong way
-        feederMotor.setDirection(DcMotor.Direction.REVERSE);
-        feederMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        feederServo.setDirection(Servo.Direction.FORWARD);
+        feederServo.setPosition(REST_POSITION);
     }
 
     public void feeder(Gamepad gamepad) {
 
-        // Hold right trigger to run the feeder, release to stop
-        feederPower = (gamepad.right_trigger > TRIGGER_THRESHOLD) ? FEED_POWER : 0;
-        feederMotor.setPower(feederPower);
+        if (gamepad.right_trigger > TRIGGER_THRESHOLD) {
+            feederServo.setPosition(FEED_POSITION);
+        } else {
+            feederServo.setPosition(REST_POSITION);
+        }
     }
 
-    public double getFeederPower() {
-        return feederPower;
+    public double getFeederPosition() {
+        return feederServo.getPosition();
     }
 }

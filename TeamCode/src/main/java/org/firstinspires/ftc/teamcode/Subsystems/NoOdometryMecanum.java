@@ -1,0 +1,107 @@
+package org.firstinspires.ftc.teamcode.Subsystems;
+
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+
+public class NoOdometryMecanum {
+
+    private final DcMotor rightFrontMotor;
+    private final DcMotor leftFrontMotor;
+    private final DcMotor rightBackMotor;
+    private final DcMotor leftBackMotor;
+
+    private double leftBackMotorSpeed;
+    private double rightBackMotorSpeed;
+    private double rightFrontMotorSpeed;
+    private double leftFrontMotorSpeed;
+
+    private static final double MAX_POWER = 0.8;
+
+    public NoOdometryMecanum(HardwareMap hardwareMap) {
+
+        rightFrontMotor =
+                hardwareMap.get(DcMotor.class, "rightFrontMotor");
+
+        leftFrontMotor =
+                hardwareMap.get(DcMotor.class, "leftFrontMotor");
+
+        rightBackMotor =
+                hardwareMap.get(DcMotor.class, "rightBackMotor");
+
+        leftBackMotor =
+                hardwareMap.get(DcMotor.class, "leftBackMotor");
+
+        // Reverse the right-side motors
+        rightFrontMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightBackMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        // Run without encoder-based speed control
+        leftFrontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightFrontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftBackMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightBackMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        // Stop motors during initialization
+        leftFrontMotor.setPower(0);
+        rightFrontMotor.setPower(0);
+        leftBackMotor.setPower(0);
+        rightBackMotor.setPower(0);
+    }
+
+    public void mecanumDrive(double y, double x, double rx) {
+
+        leftFrontMotorSpeed = y + x + rx;
+        leftBackMotorSpeed = y - x + rx;
+        rightFrontMotorSpeed = y - x - rx;
+        rightBackMotorSpeed = y + x - rx;
+
+        // Find the largest absolute motor power
+        double max = Math.max(
+                Math.abs(leftFrontMotorSpeed),
+                Math.abs(leftBackMotorSpeed)
+        );
+
+        max = Math.max(max, Math.abs(rightFrontMotorSpeed));
+        max = Math.max(max, Math.abs(rightBackMotorSpeed));
+
+        // Limit power to 0.8 while preserving motor power ratios
+        if (max > MAX_POWER) {
+            leftFrontMotorSpeed =
+                    (leftFrontMotorSpeed / max) * MAX_POWER;
+
+            rightFrontMotorSpeed =
+                    (rightFrontMotorSpeed / max) * MAX_POWER;
+
+            leftBackMotorSpeed =
+                    (leftBackMotorSpeed / max) * MAX_POWER;
+
+            rightBackMotorSpeed =
+                    (rightBackMotorSpeed / max) * MAX_POWER;
+        }
+
+        // Apply motor powers
+        leftFrontMotor.setPower(leftFrontMotorSpeed);
+        rightFrontMotor.setPower(rightFrontMotorSpeed);
+        leftBackMotor.setPower(leftBackMotorSpeed);
+        rightBackMotor.setPower(rightBackMotorSpeed);
+    }
+
+    // Motor power getters
+
+    public double getLeftFrontPower() {
+        return leftFrontMotorSpeed;
+    }
+
+    public double getRightFrontPower() {
+        return rightFrontMotorSpeed;
+    }
+
+    public double getLeftBackPower() {
+        return leftBackMotorSpeed;
+    }
+
+    public double getRightBackPower() {
+        return rightBackMotorSpeed;
+    }
+}

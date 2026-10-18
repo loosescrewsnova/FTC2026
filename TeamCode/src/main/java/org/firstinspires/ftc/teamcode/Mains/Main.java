@@ -170,7 +170,7 @@ public class Main extends OpMode {
                 "Intake / Feeder / Shooter",
                 "%.2f / %.2f / %.2f",
                 intake.getIntakePower(),
-                feeder.getFeederPower(),
+                feeder.getFeederPosition(),
                 shooter.getShooterSpeed()
         );
 

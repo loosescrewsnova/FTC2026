@@ -4,23 +4,17 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Subsystems.Feeder;
-import org.firstinspires.ftc.teamcode.Subsystems.IMUOrthogonalNew;
+import org.firstinspires.ftc.teamcode.Subsystems.NoOdometryMecanum;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake;
-import org.firstinspires.ftc.teamcode.Subsystems.LimelightLocalizer;
-import org.firstinspires.ftc.teamcode.Subsystems.MecanumDrive;
-import org.firstinspires.ftc.teamcode.Subsystems.PIDController;
 import org.firstinspires.ftc.teamcode.Subsystems.shooter.Shooter;
 
-
-@TeleOp(name = "Joystick Operations")
+@TeleOp(name = "First Starter Bot Code3")
 public class NoLimelightMain extends OpMode {
 
-    private MecanumDrive mecanumDrive;
+    private NoOdometryMecanum noOdometryMecanum;
     private Intake intake;
     private Feeder feeder;
-    private IMUOrthogonalNew imuOrthogonal;
     private Shooter shooter;
-
 
     private double endGameStart;
     private boolean isEndGame;
@@ -28,12 +22,14 @@ public class NoLimelightMain extends OpMode {
     @Override
     public void init() {
 
-        mecanumDrive = new MecanumDrive(hardwareMap);
-        intake = new Intake(hardwareMap);
-        feeder = new Feeder(hardwareMap);
-        imuOrthogonal = new IMUOrthogonalNew(hardwareMap);
-        shooter = new Shooter(hardwareMap);
+        noOdometryMecanum =
+                new NoOdometryMecanum(hardwareMap);
 
+        intake = new Intake(hardwareMap);
+
+        feeder = new Feeder(hardwareMap);
+
+        shooter = new Shooter(hardwareMap);
 
         isEndGame = false;
 
@@ -44,56 +40,67 @@ public class NoLimelightMain extends OpMode {
     @Override
     public void start() {
 
+        // Endgame begins 90 seconds after TeleOp starts
         endGameStart = getRuntime() + 90;
     }
 
     @Override
     public void loop() {
 
-        // Hold left trigger = intake, hold right trigger = feeder
+        // ----------------------------
+        // INTAKE, FEEDER, AND SHOOTER
+        // ----------------------------
+
+        // Hold left trigger to run intake
         intake.intake(gamepad1);
+
+        // Hold right trigger to operate feeder
         feeder.feeder(gamepad1);
+
+        // Shooter controls are handled by the Shooter subsystem
         shooter.shooter(gamepad1);
 
+        // ----------------------------
+        // MECANUM DRIVE
+        // ----------------------------
 
-        double y = gamepad1.left_stick_y;
+        double y = -gamepad1.left_stick_y;
         double x = -gamepad1.left_stick_x;
-        double rx;
+        double rx = -gamepad1.right_stick_x;
 
-        // 2. The (possibly corrected) IMU heading updates the encoders'
-        //    position calculation.
-        mecanumDrive.updateOdometry(imuOrthogonal.getYawRadians());
+        noOdometryMecanum.mecanumDrive(y, x, rx);
 
-        if (gamepad1.y) {
-            imuOrthogonal.resetYaw();
-        }
+        // ----------------------------
+        // ENDGAME RUMBLE
+        // ----------------------------
 
         if (getRuntime() >= endGameStart && !isEndGame) {
 
             gamepad1.rumbleBlips(3);
+
             isEndGame = true;
         }
 
         // ----------------------------
-        // TELEMETRY (kept short on purpose)
+        // TELEMETRY
         // ----------------------------
-        telemetry.addData(
-                "Pose",
-                "X %.1f in | Y %.1f in | H %.0f deg",
-                mecanumDrive.getX(),
-                mecanumDrive.getY(),
-                mecanumDrive.getHeadingDegrees()
-        );
 
         telemetry.addData(
                 "Intake / Feeder / Shooter",
                 "%.2f / %.2f / %.2f",
                 intake.getIntakePower(),
-                feeder.getFeederPower(),
+                feeder.getFeederPosition(),
                 shooter.getShooterSpeed()
         );
 
         telemetry.addData("Endgame", isEndGame);
+
+        telemetry.addData(
+                "Drive LF / RF",
+                "%.2f / %.2f",
+                noOdometryMecanum.getLeftFrontPower(),
+                noOdometryMecanum.getRightFrontPower()
+        );
 
         telemetry.update();
     }
