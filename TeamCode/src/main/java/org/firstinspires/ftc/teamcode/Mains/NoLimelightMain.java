@@ -1,107 +1,58 @@
 package org.firstinspires.ftc.teamcode.Mains;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Subsystems.Feeder;
-import org.firstinspires.ftc.teamcode.Subsystems.NoOdometryMecanum;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake;
-import org.firstinspires.ftc.teamcode.Subsystems.shooter.Shooter;
+import org.firstinspires.ftc.teamcode.Subsystems.NoOdometryMecanum;
+import org.firstinspires.ftc.teamcode.Subsystems.Shooter;
 
-@TeleOp(name = "First Starter Bot Code3")
-public class NoLimelightMain extends OpMode {
-
-    private NoOdometryMecanum noOdometryMecanum;
-    private Intake intake;
-    private Feeder feeder;
-    private Shooter shooter;
-
-    private double endGameStart;
-    private boolean isEndGame;
+/**
+ * TeleOp with no Limelight and no odometry.
+ *
+ * gamepad1 controls:
+ *   Left stick          = drive / strafe
+ *   Right stick X       = turn
+ *   D-pad right (hold)  = shooter speed up   (0.2 per second, starts at 0)
+ *   D-pad left (hold)   = shooter speed down (0.2 per second, never below 0)
+ *   Right trigger (hold) = intake
+ *   Left trigger (hold)  = feeder
+ */
+@TeleOp(name = "NoLimelightMain", group = "Mains")
+public class NoLimelightMain extends LinearOpMode {
 
     @Override
-    public void init() {
+    public void runOpMode() {
 
-        noOdometryMecanum =
-                new NoOdometryMecanum(hardwareMap);
+        NoOdometryMecanum mecanum = new NoOdometryMecanum(hardwareMap);
+        Shooter shooter = new Shooter(hardwareMap);
+        Intake intake = new Intake(hardwareMap);
+        Feeder feeder = new Feeder(hardwareMap);
 
-        intake = new Intake(hardwareMap);
-
-        feeder = new Feeder(hardwareMap);
-
-        shooter = new Shooter(hardwareMap);
-
-        isEndGame = false;
-
-        telemetry.addData("Status", "Initialized");
+        telemetry.addLine("Initialized - press START");
         telemetry.update();
-    }
 
-    @Override
-    public void start() {
+        waitForStart();
 
-        // Endgame begins 90 seconds after TeleOp starts
-        endGameStart = getRuntime() + 90;
-    }
+        // Restart the shooter's timer so the first loop doesn't see a big time jump
+        shooter.resetTimer();
 
-    @Override
-    public void loop() {
+        while (opModeIsActive()) {
 
-        // ----------------------------
-        // INTAKE, FEEDER, AND SHOOTER
-        // ----------------------------
+            mecanum.driveWithGamepad(gamepad1);
+            shooter.shooter(gamepad1);
+            intake.intake(gamepad1);
+            feeder.feeder(gamepad1);
 
-        // Hold left trigger to run intake
-        intake.intake(gamepad1);
-
-        // Hold right trigger to operate feeder
-        feeder.feeder(gamepad1);
-
-        // Shooter controls are handled by the Shooter subsystem
-        shooter.shooter(gamepad1);
-
-        // ----------------------------
-        // MECANUM DRIVE
-        // ----------------------------
-
-        double y = -gamepad1.left_stick_y;
-        double x = -gamepad1.left_stick_x;
-        double rx = -gamepad1.right_stick_x;
-
-        noOdometryMecanum.mecanumDrive(y, x, rx);
-
-        // ----------------------------
-        // ENDGAME RUMBLE
-        // ----------------------------
-
-        if (getRuntime() >= endGameStart && !isEndGame) {
-
-            gamepad1.rumbleBlips(3);
-
-            isEndGame = true;
+            telemetry.addData("Shooter", shooter.isRunning() ? "ON" : "off");
+            telemetry.addData("Shooter speed", "%.2f", shooter.getShooterSpeed());
+            telemetry.addData("Intake power", "%.2f", intake.getIntakePower());
+            telemetry.update();
         }
 
-        // ----------------------------
-        // TELEMETRY
-        // ----------------------------
-
-        telemetry.addData(
-                "Intake / Feeder / Shooter",
-                "%.2f / %.2f / %.2f",
-                intake.getIntakePower(),
-                feeder.getFeederPosition(),
-                shooter.getShooterSpeed()
-        );
-
-        telemetry.addData("Endgame", isEndGame);
-
-        telemetry.addData(
-                "Drive LF / RF",
-                "%.2f / %.2f",
-                noOdometryMecanum.getLeftFrontPower(),
-                noOdometryMecanum.getRightFrontPower()
-        );
-
-        telemetry.update();
+        mecanum.stop();
+        shooter.stop();
+        intake.stop();
     }
 }

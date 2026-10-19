@@ -1,4 +1,3 @@
-
 package org.firstinspires.ftc.teamcode.Subsystems;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -15,31 +14,30 @@ public class Intake {
 
     public Intake(HardwareMap hardwareMap) {
 
-        intakeMotor = hardwareMap.get(
-                DcMotor.class,
-                "intakeMotor"
-        );
+        // The robot configuration has the shooter and intake names swapped,
+        // so the intake is the motor configured as "shooterMotor".
+        intakeMotor = hardwareMap.get(DcMotor.class, "shooterMotor");
 
         // Reverse the motor if needed for the intake mechanism
-        intakeMotor.setDirection(DcMotor.Direction.REVERSE);
-
-        intakeMotor.setMode(
-                DcMotor.RunMode.RUN_WITHOUT_ENCODER
-        );
-
+        intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intakeMotor.setPower(0);
     }
 
     public void intake(Gamepad gamepad) {
 
-        // Hold the left trigger to run the intake
-        if (gamepad.left_trigger > TRIGGER_THRESHOLD) {
+        // Hold the RIGHT trigger to run the intake
+        if (gamepad.right_trigger > TRIGGER_THRESHOLD) {
             intakePower = INTAKE_POWER;
         } else {
             intakePower = 0;
         }
 
         intakeMotor.setPower(intakePower);
+    }
+
+    public void stop() {
+        intakePower = 0;
+        intakeMotor.setPower(0);
     }
 
     public double getIntakePower() {
