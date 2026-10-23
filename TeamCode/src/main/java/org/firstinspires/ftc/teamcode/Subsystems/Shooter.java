@@ -1,9 +1,9 @@
+
 package org.firstinspires.ftc.teamcode.Subsystems;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class Shooter {
 
@@ -29,14 +29,15 @@ public class Shooter {
     private double shooterSpeed = MIN_SPEED;
 
     public Shooter(HardwareMap hardwareMap) {
-        shooterMotor = hardwareMap.get(DcMotor.class, "shooterMotor");
 
-        // Flip to REVERSE if the shooter spins the wrong way
-        shooterMotor.setDirection(DcMotor.Direction.FORWARD);
+        // The shooter is currently configured as "intakeMotor".
+        shooterMotor = hardwareMap.get(DcMotor.class, "intakeMotor");
+
+        // Reverse the motor if needed for the correct shooting direction.
+        shooterMotor.setDirection(DcMotor.Direction.REVERSE);
         shooterMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        timer.reset();
-        lastTime = timer.seconds();
+        shooterMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        shooterMotor.setPower(0);
     }
 
     public void shooter(Gamepad gamepad) {
@@ -74,7 +75,7 @@ public class Shooter {
         }
     }
 
-    public double getShooterSpeed() {
-        return shooterSpeed;
+    public void stop() {
+        shooterMotor.setPower(0);
     }
 }

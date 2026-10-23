@@ -1,10 +1,9 @@
 package org.firstinspires.ftc.teamcode.Mains;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Subsystems.Feeder;
-import org.firstinspires.ftc.teamcode.Subsystems.NoOdometryMecanum;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake;
 import org.firstinspires.ftc.teamcode.Subsystems.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Subsystems.shooter.Shooter;
@@ -34,7 +33,10 @@ public class NoLimelightMain extends OpMode {
         mecanumDrive = new MecanumDrive(hardwareMap);
         intake = new Intake(hardwareMap);
 
-        feeder = new Feeder(hardwareMap);
+        NoOdometryMecanum mecanum = new NoOdometryMecanum(hardwareMap);
+        Shooter shooter = new Shooter(hardwareMap);
+        Intake intake = new Intake(hardwareMap);
+        Feeder feeder = new Feeder(hardwareMap);
 
         isEndGame = false;
 

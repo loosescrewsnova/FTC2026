@@ -168,11 +168,9 @@ public class Main extends OpMode {
         );
 
         telemetry.addData(
-                "Intake / Feeder / Shooter",
-                "%.2f / %.2f / %.2f",
-                intake.getIntakePower(),
-                feeder.getFeederPosition(),
-                shooter.getShooterSpeed()
+                "Intake",
+                "%.2f",
+                intake.getIntakePower()
         );
 
         telemetry.addData(

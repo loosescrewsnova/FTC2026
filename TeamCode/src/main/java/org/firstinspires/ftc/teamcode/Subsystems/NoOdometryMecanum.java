@@ -1,107 +1,92 @@
 package org.firstinspires.ftc.teamcode.Subsystems;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class NoOdometryMecanum {
 
-    private final DcMotor rightFrontMotor;
-    private final DcMotor leftFrontMotor;
-    private final DcMotor rightBackMotor;
-    private final DcMotor leftBackMotor;
+    // These names must match your Driver Station configuration.
+    private static final String FRONT_LEFT_NAME = "leftFrontMotor";
+    private static final String FRONT_RIGHT_NAME = "rightFrontMotor";
+    private static final String BACK_LEFT_NAME = "leftBackMotor";
+    private static final String BACK_RIGHT_NAME = "rightBackMotor";
 
-    private double leftBackMotorSpeed;
-    private double rightBackMotorSpeed;
-    private double rightFrontMotorSpeed;
-    private double leftFrontMotorSpeed;
+    // Ignore tiny joystick movements.
+    private static final double DEADZONE = 0.05;
 
-    private static final double MAX_POWER = 0.8;
+    // Maximum drivetrain power.
+    private static final double MAX_POWER = 1.0;
+
+    private final DcMotor frontLeft;
+    private final DcMotor frontRight;
+    private final DcMotor backLeft;
+    private final DcMotor backRight;
 
     public NoOdometryMecanum(HardwareMap hardwareMap) {
 
-        rightFrontMotor =
-                hardwareMap.get(DcMotor.class, "rightFrontMotor");
+        frontLeft = hardwareMap.get(DcMotor.class, FRONT_LEFT_NAME);
+        frontRight = hardwareMap.get(DcMotor.class, FRONT_RIGHT_NAME);
+        backLeft = hardwareMap.get(DcMotor.class, BACK_LEFT_NAME);
+        backRight = hardwareMap.get(DcMotor.class, BACK_RIGHT_NAME);
 
-        leftFrontMotor =
-                hardwareMap.get(DcMotor.class, "leftFrontMotor");
+        // Left side reversed so positive power = forward on every wheel.
+        // Verify on the actual robot (see test steps below).
+        frontLeft.setDirection(DcMotor.Direction.REVERSE);
+        backLeft.setDirection(DcMotor.Direction.REVERSE);
+        frontRight.setDirection(DcMotor.Direction.FORWARD);
+        backRight.setDirection(DcMotor.Direction.FORWARD);
 
-        rightBackMotor =
-                hardwareMap.get(DcMotor.class, "rightBackMotor");
-
-        leftBackMotor =
-                hardwareMap.get(DcMotor.class, "leftBackMotor");
-
-        // Reverse the right-side motors
-        rightFrontMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        rightBackMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        // Run without encoder-based speed control
-        leftFrontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightFrontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        leftBackMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightBackMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        // Stop motors during initialization
-        leftFrontMotor.setPower(0);
-        rightFrontMotor.setPower(0);
-        leftBackMotor.setPower(0);
-        rightBackMotor.setPower(0);
+        for (DcMotor motor : new DcMotor[]{
+                frontLeft, frontRight, backLeft, backRight
+        }) {
+            motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            motor.setPower(0);
+        }
     }
 
-    public void mecanumDrive(double y, double x, double rx) {
+    // Gamepad 1:
+    // Left stick Y  = forward / backward
+    // Left stick X  = strafe left / right
+    // Right stick X = rotate left / right
+    public void driveWithGamepad(Gamepad gamepad) {
 
-        leftFrontMotorSpeed = y + x + rx;
-        leftBackMotorSpeed = y - x + rx;
-        rightFrontMotorSpeed = y - x - rx;
-        rightBackMotorSpeed = y + x - rx;
+        double forward = applyDeadzone(-gamepad.left_stick_y); // stick up is negative
+        double strafe  = applyDeadzone(gamepad.left_stick_x);  // right is positive
+        double turn    = applyDeadzone(gamepad.right_stick_x); // right = clockwise
 
-        // Find the largest absolute motor power
+        setDrivePowers(forward, strafe, turn);
+    }
+
+    // forward: + = forward, strafe: + = right, turn: + = clockwise
+    public void setDrivePowers(double forward, double strafe, double turn) {
+
+        double fl = forward + strafe + turn;
+        double fr = forward - strafe - turn;
+        double bl = forward - strafe + turn;
+        double br = forward + strafe - turn;
+
+        // Scale all powers down together if any exceeds 1.0, preserving direction.
         double max = Math.max(
-                Math.abs(leftFrontMotorSpeed),
-                Math.abs(leftBackMotorSpeed)
+                1.0,
+                Math.max(
+                        Math.max(Math.abs(fl), Math.abs(fr)),
+                        Math.max(Math.abs(bl), Math.abs(br))
+                )
         );
 
-        max = Math.max(max, Math.abs(rightFrontMotorSpeed));
-        max = Math.max(max, Math.abs(rightBackMotorSpeed));
-
-        // Limit power to 0.8 while preserving motor power ratios
-        if (max > MAX_POWER) {
-            leftFrontMotorSpeed =
-                    (leftFrontMotorSpeed / max) * MAX_POWER;
-
-            rightFrontMotorSpeed =
-                    (rightFrontMotorSpeed / max) * MAX_POWER;
-
-            leftBackMotorSpeed =
-                    (leftBackMotorSpeed / max) * MAX_POWER;
-
-            rightBackMotorSpeed =
-                    (rightBackMotorSpeed / max) * MAX_POWER;
-        }
-
-        // Apply motor powers
-        leftFrontMotor.setPower(leftFrontMotorSpeed);
-        rightFrontMotor.setPower(rightFrontMotorSpeed);
-        leftBackMotor.setPower(leftBackMotorSpeed);
-        rightBackMotor.setPower(rightBackMotorSpeed);
+        frontLeft.setPower((fl / max) * MAX_POWER);
+        frontRight.setPower((fr / max) * MAX_POWER);
+        backLeft.setPower((bl / max) * MAX_POWER);
+        backRight.setPower((br / max) * MAX_POWER);
     }
 
-    // Motor power getters
-
-    public double getLeftFrontPower() {
-        return leftFrontMotorSpeed;
+    public void stop() {
+        setDrivePowers(0, 0, 0);
     }
 
-    public double getRightFrontPower() {
-        return rightFrontMotorSpeed;
-    }
-
-    public double getLeftBackPower() {
-        return leftBackMotorSpeed;
-    }
-
-    public double getRightBackPower() {
-        return rightBackMotorSpeed;
+    private static double applyDeadzone(double value) {
+        return Math.abs(value) < DEADZONE ? 0.0 : value;
     }
 }
