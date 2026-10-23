@@ -35,9 +35,6 @@ public class NoLimelightMain extends LinearOpMode {
 
         waitForStart();
 
-        // Restart the shooter's timer so the first loop doesn't see a big time jump
-        shooter.resetTimer();
-
         while (opModeIsActive()) {
 
             mecanum.driveWithGamepad(gamepad1);
@@ -45,8 +42,6 @@ public class NoLimelightMain extends LinearOpMode {
             intake.intake(gamepad1);
             feeder.feeder(gamepad1);
 
-            telemetry.addData("Shooter", shooter.isRunning() ? "ON" : "off");
-            telemetry.addData("Shooter speed", "%.2f", shooter.getShooterSpeed());
             telemetry.addData("Intake power", "%.2f", intake.getIntakePower());
             telemetry.update();
         }
