@@ -31,4 +31,8 @@ public class Feeder {
     public void stop() {
         feederServo.setPower(STOP_POWER);
     }
+
+    public static double getFeedPower() {
+        return FEED_POWER;
+    }
 }

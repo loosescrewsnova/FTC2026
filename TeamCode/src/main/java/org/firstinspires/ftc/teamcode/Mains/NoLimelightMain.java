@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Subsystems.Feeder;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake;
 import org.firstinspires.ftc.teamcode.Subsystems.NoOdometryMecanum;
+import org.firstinspires.ftc.teamcode.Subsystems.PollenPusher;
 import org.firstinspires.ftc.teamcode.Subsystems.Shooter;
 
 /**
@@ -29,6 +30,7 @@ public class NoLimelightMain extends LinearOpMode {
         Shooter shooter = new Shooter(hardwareMap);
         Intake intake = new Intake(hardwareMap);
         Feeder feeder = new Feeder(hardwareMap);
+        PollenPusher pollenPusher = new PollenPusher(hardwareMap);
 
         telemetry.addLine("Initialized - press START");
         telemetry.update();
@@ -41,8 +43,11 @@ public class NoLimelightMain extends LinearOpMode {
             shooter.shooter(gamepad1);
             intake.intake(gamepad1);
             feeder.feeder(gamepad1);
+            pollenPusher.pollenPusher(gamepad1);
 
-            telemetry.addData("Intake power", "%.2f", intake.getIntakePower());
+            telemetry.addData("Intake power", intake.getIntakePower());
+            telemetry.addData("Feeder Power", Feeder.getFeedPower());
+            telemetry.addData("Shooter Speed", Shooter.getShooterPower());
             telemetry.update();
         }
 

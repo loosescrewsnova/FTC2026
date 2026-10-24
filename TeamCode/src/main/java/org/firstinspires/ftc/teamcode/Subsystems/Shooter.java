@@ -36,4 +36,8 @@ public class Shooter {
     public void stop() {
         shooterMotor.setPower(0);
     }
+
+    public static double getShooterPower() {
+        return SHOOTER_POWER;
+    }
 }
