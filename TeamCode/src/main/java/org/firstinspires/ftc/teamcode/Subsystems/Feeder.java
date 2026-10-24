@@ -20,19 +20,14 @@ public class Feeder {
 
     public void feeder(Gamepad gamepad) {
 
-        // Hold X to run the feeder.
-        if (gamepad.x) {
-            feederServo.setPower(FEED_POWER);
-        } else {
-            feederServo.setPower(STOP_POWER);
+        feederMotor.setPower(0);
+
+        while(gamepad.x) {
+            feederMotor.setPower(1);
         }
     }
 
     public void stop() {
         feederServo.setPower(STOP_POWER);
-    }
-
-    public static double getFeedPower() {
-        return FEED_POWER;
     }
 }

@@ -24,23 +24,21 @@ public class Intake {
 
     public void intake(Gamepad gamepad) {
 
-        // Detect a new press of B.
-        boolean isBPressed = gamepad.b;
+        intakeMotor.setPower(0);
 
-        if (isBPressed && !wasBPressed) {
-
-            // Toggle the intake between ON and OFF.
-            if (intakePower == 0) {
-                intakePower = INTAKE_POWER;
-            } else {
-                intakePower = 0;
-            }
+        while(gamepad.b) {
+            intakeMotor.setPower(1);
         }
+    }
 
-        // Remember the current button state.
-        wasBPressed = isBPressed;
+    public void stop() {
+        intakePower = 0;
+        intakeMotor.setPower(0);
+    }
 
-        intakeMotor.setPower(intakePower);
+    public void stop() {
+        intakePower = 0;
+        intakeMotor.setPower(0);
     }
 
     public void stop() {

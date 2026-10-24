@@ -9,7 +9,24 @@ public class Shooter {
 
     private final DcMotor shooterMotor;
 
-    private static final double SHOOTER_POWER = 1.0;
+    private boolean isY = false;
+
+    // Speed range and how long a full sweep takes while the d-pad is held
+    private static final double MIN_SPEED = 0.0;
+    private static final double MAX_SPEED = 1.0;
+    private static final double FULL_SWEEP_SECONDS = 10.0;
+
+    // Units of power per second: (1.0 - 0.0) / 10 s = 0.1 per second
+    private static final double RAMP_RATE =
+            (MAX_SPEED - MIN_SPEED) / FULL_SWEEP_SECONDS;
+
+    // Safety cap on dt so a long hiccup between loops can't cause a big jump
+    private static final double MAX_DT = 0.1;
+
+    private final ElapsedTime timer = new ElapsedTime();
+    private double lastTime;
+
+    private double shooterSpeed = MIN_SPEED;
 
     public Shooter(HardwareMap hardwareMap) {
 
@@ -25,19 +42,40 @@ public class Shooter {
 
     public void shooter(Gamepad gamepad) {
 
-        // Hold Y to shoot; release Y to stop.
-        if (gamepad.y) {
-            shooterMotor.setPower(SHOOTER_POWER);
-        } else {
-            shooterMotor.setPower(0);
+        shooterMotor.setPower(0);
+
+        while(gamepad.y) {
+            shooterMotor.setPower(1);
+
+            // Time since the last loop, so the ramp is based on real time
+            double now = timer.seconds();
+            double dt = Math.min(now - lastTime, MAX_DT);
+            lastTime = now;
+
+            // Hold d-pad right to speed up, d-pad left to slow down
+            if (gamepad.dpad_right) {
+                shooterSpeed += RAMP_RATE * dt;
+
+                if(shooterSpeed < 0) {
+                    shooterSpeed = 0;
+                }
+            }
+            if (gamepad.dpad_left) {
+                shooterSpeed -= RAMP_RATE * dt;
+
+                if(shooterSpeed < 0) {
+                    shooterSpeed = 0;
+                }
+            }
+
+            // Keep it inside the allowed range
+            shooterSpeed = Math.max(MIN_SPEED, Math.min(MAX_SPEED, shooterSpeed));
+
+            shooterMotor.setPower(shooterSpeed);
         }
     }
 
     public void stop() {
         shooterMotor.setPower(0);
-    }
-
-    public static double getShooterPower() {
-        return SHOOTER_POWER;
     }
 }
