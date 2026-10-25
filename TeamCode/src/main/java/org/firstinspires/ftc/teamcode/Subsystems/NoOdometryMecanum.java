@@ -16,7 +16,7 @@ public class NoOdometryMecanum {
     private static final double DEADZONE = 0.05;
 
     // Maximum drivetrain power.
-    private static final double MAX_POWER = 1.0;
+    private static final double MAX_POWER = 1;
 
     private final DcMotor frontLeft;
     private final DcMotor frontRight;
@@ -31,7 +31,7 @@ public class NoOdometryMecanum {
         backRight = hardwareMap.get(DcMotor.class, BACK_RIGHT_NAME);
 
         // Left side reversed so positive power = forward on every wheel.
-        // Verify on the actual robot (see test steps below).
+        // Verify on the actual robot.
         frontLeft.setDirection(DcMotor.Direction.REVERSE);
         backLeft.setDirection(DcMotor.Direction.REVERSE);
         frontRight.setDirection(DcMotor.Direction.FORWARD);
@@ -46,15 +46,14 @@ public class NoOdometryMecanum {
         }
     }
 
-    // Gamepad 1:
     // Left stick Y  = forward / backward
     // Left stick X  = strafe left / right
     // Right stick X = rotate left / right
     public void driveWithGamepad(Gamepad gamepad) {
 
-        double forward = applyDeadzone(-gamepad.left_stick_y); // stick up is negative
-        double strafe  = applyDeadzone(gamepad.left_stick_x);  // right is positive
-        double turn    = applyDeadzone(gamepad.right_stick_x); // right = clockwise
+        double forward = applyDeadzone(gamepad.left_stick_y); // stick up is negative
+        double strafe  = applyDeadzone(-gamepad.left_stick_x);  // right is positive
+        double turn    = applyDeadzone(-gamepad.right_stick_x); // right = clockwise
 
         setDrivePowers(forward, strafe, turn);
     }

@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Subsystems;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -18,26 +19,20 @@ public class Intake {
         // The intake is currently configured as "shooterMotor".
         intakeMotor = hardwareMap.get(DcMotor.class, "shooterMotor");
 
+        intakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intakeMotor.setPower(0);
     }
 
     public void intake(Gamepad gamepad) {
 
-        // Detect a new press of B.
+        // B (right button): one click turns intake on, next click turns it off.
         boolean isBPressed = gamepad.b;
 
         if (isBPressed && !wasBPressed) {
-
-            // Toggle the intake between ON and OFF.
-            if (intakePower == 0) {
-                intakePower = INTAKE_POWER;
-            } else {
-                intakePower = 0;
-            }
+            intakePower = (intakePower == 0) ? INTAKE_POWER : 0;
         }
 
-        // Remember the current button state.
         wasBPressed = isBPressed;
 
         intakeMotor.setPower(intakePower);
