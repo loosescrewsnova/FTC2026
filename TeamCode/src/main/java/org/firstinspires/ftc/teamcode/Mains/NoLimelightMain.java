@@ -1,11 +1,21 @@
 package org.firstinspires.ftc.teamcode.Mains;
 
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.gamepad1;
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.gamepad2;
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
+
+import static java.lang.Runtime.getRuntime;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Subsystems.Feeder;
+import org.firstinspires.ftc.teamcode.Subsystems.IMUOrthogonalNew;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake;
 import org.firstinspires.ftc.teamcode.Subsystems.MecanumDrive;
+import org.firstinspires.ftc.teamcode.Subsystems.NoOdometryMecanum;
 import org.firstinspires.ftc.teamcode.Subsystems.shooter.Shooter;
 
 @TeleOp(name = "Joystick Operations")
@@ -82,6 +92,7 @@ public class NoLimelightMain extends OpMode {
         // =================================
 
         // Reset heading when Y is pressed
+        IMUOrthogonalNew imuOrthogonal = null;
         if (gamepad1.y) {
             imuOrthogonal.resetYaw();
         }

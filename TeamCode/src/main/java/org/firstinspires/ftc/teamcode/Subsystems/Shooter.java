@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode.Subsystems;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class Shooter {
 
@@ -77,5 +78,9 @@ public class Shooter {
 
     public void stop() {
         shooterMotor.setPower(0);
+    }
+
+    public Object getShooterSpeed() {
+        return null;
     }
 }
