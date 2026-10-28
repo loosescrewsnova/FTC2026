@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Subsystems;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.CRServo;
 
 public class Feeder {
 
@@ -13,24 +14,21 @@ public class Feeder {
 
     public Feeder(HardwareMap hardwareMap) {
         feederServo = hardwareMap.get(CRServo.class, "feederServo");
+
+        // Stop the servo initially.
         feederServo.setPower(STOP_POWER);
     }
 
     public void feeder(Gamepad gamepad) {
 
-        // Hold X (left button) to run the feeder; release to stop.
-        if (gamepad.x) {
-            feederServo.setPower(FEED_POWER);
-        } else {
-            feederServo.setPower(STOP_POWER);
+        feederMotor.setPower(0);
+
+        while(gamepad.x) {
+            feederMotor.setPower(1);
         }
     }
 
     public void stop() {
         feederServo.setPower(STOP_POWER);
-    }
-
-    public static double getFeedPower() {
-        return FEED_POWER;
     }
 }

@@ -19,23 +19,32 @@ public class Intake {
         // The intake is currently configured as "shooterMotor".
         intakeMotor = hardwareMap.get(DcMotor.class, "shooterMotor");
 
-        intakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intakeMotor.setPower(0);
     }
 
     public void intake(Gamepad gamepad) {
 
-        // B (right button): one click turns intake on, next click turns it off.
-        boolean isBPressed = gamepad.b;
+        intakeMotor.setPower(0);
 
-        if (isBPressed && !wasBPressed) {
-            intakePower = (intakePower == 0) ? INTAKE_POWER : 0;
+        while(gamepad.b) {
+            intakeMotor.setPower(1);
         }
+    }
 
-        wasBPressed = isBPressed;
+    public void stop() {
+        intakePower = 0;
+        intakeMotor.setPower(0);
+    }
 
-        intakeMotor.setPower(intakePower);
+    public void stop() {
+        intakePower = 0;
+        intakeMotor.setPower(0);
+    }
+
+    public void stop() {
+        intakePower = 0;
+        intakeMotor.setPower(0);
     }
 
     public void stop() {
