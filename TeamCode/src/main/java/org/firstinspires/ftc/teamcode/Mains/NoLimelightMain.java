@@ -39,11 +39,11 @@ public class NoLimelightMain extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-            mecanum.driveWithGamepad(gamepad1);
-            shooter.shooter(gamepad1);
-            intake.intake(gamepad1);
-            feeder.feeder(gamepad1);
-            pollenPusher.pollenPusher(gamepad1);
+            mecanum.drive(gamepad1);
+            shooter.shooter(gamepad2);
+            intake.intake(gamepad2);
+            feeder.feeder(gamepad2);
+            pollenPusher.pollenPusher(gamepad2);
 
             telemetry.addData("Shooter power", shooter.getShooterPower());
             telemetry.addData("Intake power", intake.getIntakePower());
