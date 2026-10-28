@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 public class Shooter {
 
     private final DcMotor shooterMotor;
+    private double currentPower = 0;
 
     private boolean isY = false;
 
