@@ -23,23 +23,14 @@ public class Intake {
         intakeMotor.setPower(0);
     }
 
+    // Call this once per loop iteration from your OpMode
     public void intake(Gamepad gamepad) {
-
-        intakeMotor.setPower(0);
-
-        while(gamepad.b) {
-            intakeMotor.setPower(1);
+        if (gamepad.b) {
+            intakePower = INTAKE_POWER;
+        } else {
+            intakePower = 0;
         }
-    }
-
-    public void stop() {
-        intakePower = 0;
-        intakeMotor.setPower(0);
-    }
-
-    public void stop() {
-        intakePower = 0;
-        intakeMotor.setPower(0);
+        intakeMotor.setPower(intakePower);
     }
 
     public void stop() {
