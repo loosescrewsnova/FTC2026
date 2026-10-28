@@ -2,33 +2,33 @@ package org.firstinspires.ftc.teamcode.Subsystems;
 
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.CRServo;
 
 public class PollenPusher {
 
-    private final Servo pollenPusherServo;
+    private final CRServo pollenPusherServo;
 
-    // Servo positions (0.0 to 1.0). Tune these on the robot so the
-    // servo doesn't bind at either end of its travel.
-    private static final double PUSH_POSITION = 1.0;
-    private static final double REST_POSITION = 0.0;
+    private static final double PUSHING_POWER = 1.0;
+    private static final double STOP_POWER = 0.0;
 
     public PollenPusher(HardwareMap hardwareMap) {
-        pollenPusherServo = hardwareMap.get(Servo.class, "pollenPusherServo");
-        pollenPusherServo.setPosition(REST_POSITION);
+        pollenPusherServo = hardwareMap.get(CRServo.class, "pollenPusherServo");
+
+        // Stop the servo initially.
+        pollenPusherServo.setPower(STOP_POWER);
     }
 
     public void pollenPusher(Gamepad gamepad) {
 
-        // Hold A (bottom button) to push; release to return to rest.
+        // Hold X to run the feeder.
         if (gamepad.a) {
-            pollenPusherServo.setPosition(PUSH_POSITION);
+            pollenPusherServo.setPower(PUSHING_POWER);
         } else {
-            pollenPusherServo.setPosition(REST_POSITION);
+            pollenPusherServo.setPower(STOP_POWER);
         }
     }
 
     public void stop() {
-        pollenPusherServo.setPosition(REST_POSITION);
+        pollenPusherServo.setPower(STOP_POWER);
     }
 }
