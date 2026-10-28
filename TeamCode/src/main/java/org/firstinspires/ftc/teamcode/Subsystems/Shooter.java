@@ -1,3 +1,4 @@
+
 package org.firstinspires.ftc.teamcode.Subsystems;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -10,14 +11,17 @@ public class Shooter {
     private final DcMotor shooterMotor;
     private double currentPower = 0;
 
-    private static final double SHOOTER_POWER = 0.62;
+    private boolean isY = false;
+
+    private static final double SHOOTER_POWER = 0.7;
 
     public Shooter(HardwareMap hardwareMap) {
 
         // The shooter is currently configured as "intakeMotor".
         shooterMotor = hardwareMap.get(DcMotor.class, "intakeMotor");
 
-        shooterMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        // Reverse the motor if needed for the correct shooting direction.
+        shooterMotor.setDirection(DcMotor.Direction.REVERSE);
         shooterMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         shooterMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         shooterMotor.setPower(0);
@@ -25,17 +29,44 @@ public class Shooter {
 
     public void shooter(Gamepad gamepad) {
 
-        // Hold Y (top button) to shoot; release Y to stop.
-        currentPower = gamepad.y ? SHOOTER_POWER : 0;
-        shooterMotor.setPower(currentPower);
+        shooterMotor.setPower(0);
+
+        while(gamepad.y) {
+            shooterMotor.setPower(1);
+
+            // Time since the last loop, so the ramp is based on real time
+            double now = timer.seconds();
+            double dt = Math.min(now - lastTime, MAX_DT);
+            lastTime = now;
+
+            // Hold d-pad right to speed up, d-pad left to slow down
+            if (gamepad.dpad_right) {
+                shooterSpeed += RAMP_RATE * dt;
+
+                if(shooterSpeed < 0) {
+                    shooterSpeed = 0;
+                }
+            }
+            if (gamepad.dpad_left) {
+                shooterSpeed -= RAMP_RATE * dt;
+
+                if(shooterSpeed < 0) {
+                    shooterSpeed = 0;
+                }
+            }
+
+            // Keep it inside the allowed range
+            shooterSpeed = Math.max(MIN_SPEED, Math.min(MAX_SPEED, shooterSpeed));
+
+            shooterMotor.setPower(shooterSpeed);
+        }
     }
 
     public void stop() {
-        currentPower = 0;
         shooterMotor.setPower(0);
     }
 
-    public double getShooterPower() {
-        return currentPower;
+    public Object getShooterSpeed() {
+        return null;
     }
 }
