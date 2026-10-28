@@ -10,7 +10,7 @@ public class Shooter {
     private final DcMotor shooterMotor;
     private double currentPower = 0;
 
-    private static final double SHOOTER_POWER = 0.7;
+    private static final double SHOOTER_POWER = 0.62;
 
     public Shooter(HardwareMap hardwareMap) {
 
