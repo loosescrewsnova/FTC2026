@@ -1,10 +1,10 @@
-
 package org.firstinspires.ftc.teamcode.Subsystems;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class Shooter {
 
@@ -14,6 +14,15 @@ public class Shooter {
     private boolean isY = false;
 
     private static final double SHOOTER_POWER = 0.7;
+
+    private static final double RAMP_RATE = 0.5;   // power change per second
+    private static final double MAX_DT = 0.05;     // max seconds counted per loop
+    private static final double MIN_SPEED = 0.0;
+    private static final double MAX_SPEED = 1.0;
+
+    private final ElapsedTime timer = new ElapsedTime();
+    private double lastTime = 0;
+    private double shooterSpeed = SHOOTER_POWER;
 
     public Shooter(HardwareMap hardwareMap) {
 
@@ -31,7 +40,7 @@ public class Shooter {
 
         shooterMotor.setPower(0);
 
-        while(gamepad.y) {
+        if(gamepad.y) {
             shooterMotor.setPower(1);
 
             // Time since the last loop, so the ramp is based on real time
@@ -66,7 +75,7 @@ public class Shooter {
         shooterMotor.setPower(0);
     }
 
-    public Object getShooterSpeed() {
-        return null;
+    public double getShooterSpeed() {
+        return shooterSpeed;
     }
 }

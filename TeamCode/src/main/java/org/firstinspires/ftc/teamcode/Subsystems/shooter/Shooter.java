@@ -23,7 +23,7 @@ public class Shooter {
     public void shooter(Gamepad gamepad) {
 
         // Button was just pressed
-        if (gamepad.y && !buttonWasPressed) {
+        if (gamepad.y) {
 
             buttonTimer.reset();
             buttonWasPressed = true;

@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.Subsystems;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -13,6 +12,7 @@ public class Intake {
     private static final double INTAKE_POWER = 1.0;
 
     private boolean wasBPressed = false;
+    private boolean wasXPressed = false;
 
     public Intake(HardwareMap hardwareMap) {
 
@@ -32,10 +32,13 @@ public class Intake {
         }
         intakeMotor.setPower(intakePower);
     }
-
-    public void stop() {
-        intakePower = 0;
-        intakeMotor.setPower(0);
+    public void outtake(Gamepad gamepad){
+        if(gamepad.x) {
+            intakePower = -INTAKE_POWER;
+        } else {
+            intakePower = 0;
+        }
+        intakeMotor.setPower(intakePower);
     }
 
     public void stop() {
