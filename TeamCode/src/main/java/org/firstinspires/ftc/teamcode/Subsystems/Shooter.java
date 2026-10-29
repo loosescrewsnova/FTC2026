@@ -13,7 +13,7 @@ public class Shooter {
 
     private boolean isY = false;
 
-    private static final double SHOOTER_POWER = 0.7;
+    private static final double SHOOTER_POWER = 0.8;
 
     private static final double RAMP_RATE = 0.5;   // power change per second
     private static final double MAX_DT = 0.05;     // max seconds counted per loop

@@ -21,7 +21,7 @@ import java.util.Set;
 public class limelightAutoalign {
 
     // ---------- Target ----------
-    public static double TARGET_DISTANCE = 62.4;   // 5.2 ft in inches
+    public static double TARGET_DISTANCE = 58;   //  4 ft 10 inches
 
     // ---------- Tunables ----------
     public static double kP_TURN = 0.015;
