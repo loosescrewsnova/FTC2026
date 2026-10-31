@@ -46,7 +46,8 @@ public class NoLimelightMain extends LinearOpMode {
             pollenPusher.pollenPusher(gamepad2);
 
             telemetry.addData("Shooter power", shooter.getShooterPower());
-            telemetry.addData("Intake power", intake.getIntakePower());
+            telemetry.addData("Intake power", Intake.getIntakePower());
+            telemetry.addData("Outtake power", Intake.getOuttakePower());
             telemetry.addData("Feeder power", Feeder.getFeedPower());
             telemetry.update();
         }

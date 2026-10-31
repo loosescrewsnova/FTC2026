@@ -21,7 +21,7 @@ public class PollenPusher {
     public void pollenPusher(Gamepad gamepad) {
 
         // Hold A (bottom button) to push; release to return to rest.
-        if (gamepad.a) {
+        if (gamepad.left_trigger_pressed) {
             pollenPusherServo.setPosition(PUSH_POSITION);
         } else {
             pollenPusherServo.setPosition(REST_POSITION);
