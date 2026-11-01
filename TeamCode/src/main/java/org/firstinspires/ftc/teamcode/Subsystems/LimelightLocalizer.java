@@ -1,94 +1,74 @@
 package org.firstinspires.ftc.teamcode.Subsystems;
 
 import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
-import org.firstinspires.ftc.robotcore.external.navigation.Position;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 public class LimelightLocalizer {
 
-    private final Limelight3A limelight;
+    // Only these AprilTag IDs count for localization.
+    private static final Set<Integer> ALLOWED_TAGS =
+            new HashSet<>(Arrays.asList(34, 35, 36, 37));
 
+    private final Limelight3A limelight;
     private LLResult latestResult;
+    private boolean seesAllowedTag = false;
 
     public LimelightLocalizer(HardwareMap hardwareMap) {
-
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
-
-        // Pipeline index for your AprilTag pipeline. Verify against
-        // whatever you set up in the Limelight web UI.
-        limelight.pipelineSwitch(8);
+        limelight.pipelineSwitch(8); // your AprilTag pipeline
     }
 
     public void start() {
         limelight.start();
     }
 
-    /*
-     * Call once per loop, BEFORE reading pose. Limelight needs the current
-     * robot yaw to disambiguate the AprilTag solve (MegaTag2), so pass in
-     * the corrected heading from IMUOrthogonalNew.
-     */
+    /** Call once per loop BEFORE reading pose. Pass the corrected robot yaw in degrees. */
     public void update(double robotYawDegrees) {
         limelight.updateRobotOrientation(robotYawDegrees);
         latestResult = limelight.getLatestResult();
+
+        seesAllowedTag = false;
+        if (latestResult != null && latestResult.isValid()) {
+            for (LLResultTypes.FiducialResult tag : latestResult.getFiducialResults()) {
+                if (ALLOWED_TAGS.contains(tag.getFiducialId())) {
+                    seesAllowedTag = true;
+                    break;
+                }
+            }
+        }
     }
 
+    /** True only if the Limelight currently sees at least one of tags 34-37. */
     public boolean hasValidTarget() {
-        return latestResult != null && latestResult.isValid();
+        return seesAllowedTag;
     }
 
-    /*
-     * Botpose position comes back in meters by default - convert to inches
-     * to match the units MecanumDrive's odometry uses everywhere else.
-     * Verify getPosition()/toUnit() against your SDK version if this
-     * doesn't compile - Limelight's FTC library has changed these names
-     * across releases.
-     */
     public double getFieldXInches() {
-
-        Pose3D botPose = latestResult.getBotpose();
-        Position position = botPose.getPosition().toUnit(DistanceUnit.INCH);
-
-        return position.x;
+        Pose3D pose = latestResult.getBotpose();
+        return pose.getPosition().toUnit(DistanceUnit.INCH).x;
     }
 
     public double getFieldYInches() {
-
-        Pose3D botPose = latestResult.getBotpose();
-        Position position = botPose.getPosition().toUnit(DistanceUnit.INCH);
-
-        return position.y;
+        Pose3D pose = latestResult.getBotpose();
+        return pose.getPosition().toUnit(DistanceUnit.INCH).y;
     }
 
     public double getFieldHeadingRadians() {
-
-        Pose3D botPose = latestResult.getBotpose();
-
-        return botPose.getOrientation().getYaw(AngleUnit.RADIANS);
+        Pose3D pose = latestResult.getBotpose();
+        return pose.getOrientation().getYaw(AngleUnit.RADIANS);
     }
 
-    /*
-     * Horizontal offset (degrees) from the Limelight's crosshair to the
-     * target: 0 = tag is centered in frame, positive = tag is to the
-     * right, negative = tag is to the left.
-     *
-     * This is the error signal for the turret-mode PID in Main. It comes
-     * straight from the 2D image solve (not the full 3D botpose), so it's
-     * lower-latency and stays valid even on frames where the fiducial
-     * pose solve itself is noisier.
-     *
-     * Only call this when hasValidTarget() is true.
-     */
     public double getTx() {
-        return latestResult.getTx();
-    }
-
-    public LLResult getLatestResult() {
-        return latestResult;
+        return 0;
     }
 }
