@@ -6,6 +6,7 @@ import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants;
@@ -17,54 +18,66 @@ public class SampleAutoPathing extends OpMode {
     private Follower follower;
     private ElapsedTime pathTimer, opModeTimer;
 
+    private DcMotor intakeMotor, shooterMotor, feederMotor;
+
     public enum PathState {
-        // START POSITION_END POSITION
+        // START POSITION to INTAKE POSITION
+        // INTAKE
+        // INTAKE POSITION TO SHOOT POSITION
+        //SHOOT!
         // DRIVE > MOVEMENT STATE
         // SHOOT > ATTEMPT TO SCORE THE POLLEN/NECTAR
 
-        DRIVE_STARTPOS_SHOOT_POS,
+        DRIVE_STARTPOS_INTAKE_POS,
+        INTAKE_PRELOAD,
+        DRIVE_INTAKEPOS_SHOOTPOS,
         SHOOT_PRELOAD,
-        DRIVE_SHOOTPOS_ENDPOS
+        DONE
     }
 
     private PathState pathState;
-
-    // Pedro 3: build poses with a PoseFactory (degrees here)
+    private boolean path1Done = false;
+    private boolean path2done = false;
     private final PoseFactory p = PoseFactory.degrees();
 
     private final Pose startPose = p.of(56, 8, 90);
+    private final Pose intakePose = p.of(82.3, 32.73, 45); // PLACEHOLDER VALUES
     private final Pose shootPose = p.of(0, 0, 0); // PLACEHOLDER VALUES
-    private final Pose endPose = p.of(0, 0, 0); // PLACEHOLDER VALUES
 
-    private Path driveStartPosShootPos, driveShootPosEndPos;
+    private Path driveStartPosIntakePos, driveIntakePosShootPos;
 
     public void buildPaths() {
         // put in coordinates for starting pose > ending pose
-        driveStartPosShootPos = line(startPose, shootPose)
-                .linear(startPose, shootPose);
+        driveStartPosIntakePos = line(startPose, intakePose)
+                .linear(startPose, intakePose);
 
-        driveShootPosEndPos = line(shootPose, endPose)
-                .linear(shootPose, endPose);
+        driveIntakePosShootPos = line(intakePose, shootPose)
+                .linear(intakePose, shootPose);
     }
 
     public void statePathUpdate() {
         switch (pathState) {
-            case DRIVE_STARTPOS_SHOOT_POS:
-                follower.follow(driveStartPosShootPos);
-                setPathState(PathState.SHOOT_PRELOAD); // reset the timer & make new state
-                break;
+            case DRIVE_STARTPOS_INTAKE_POS:
+                follower.follow(driveStartPosIntakePos);
+                setPathState(PathState.INTAKE_PRELOAD); // reset the timer & make new state
+                if (!follower.isBusy()) {
+                    path1Done = true;
+
+
+
+                }
 
             case SHOOT_PRELOAD:
                 // check: is the follower done with its path?
                 // check: has 5 seconds elapsed?
                 if (!follower.isBusy() && pathTimer.seconds() > 5) {
                     // TODO add shooting logic here(flywheels)
-                    follower.follow(driveShootPosEndPos);
-                    setPathState(PathState.DRIVE_SHOOTPOS_ENDPOS);
+                    follower.follow(driveIntakePosShootPos);
+                    setPathState(PathState.DRIVE_INTAKEPOS_SHOOTPOS);
                 }
                 break;
 
-            case DRIVE_SHOOTPOS_ENDPOS:
+            case DRIVE_INTAKEPOS_SHOOTPOS:
                 // all done?
                 if (!follower.isBusy()) {
                     telemetry.addLine("Done Path 2");
@@ -84,7 +97,7 @@ public class SampleAutoPathing extends OpMode {
 
     @Override
     public void init() {
-        pathState = PathState.DRIVE_STARTPOS_SHOOT_POS;
+        pathState = PathState.DRIVE_STARTPOS_INTAKE_POS;
         pathTimer = new ElapsedTime();
         opModeTimer = new ElapsedTime();
         follower = Constants.create(hardwareMap);

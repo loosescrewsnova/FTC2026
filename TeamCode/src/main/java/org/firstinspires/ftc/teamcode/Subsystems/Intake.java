@@ -80,6 +80,12 @@ public class Intake {
         intakeMotor.setPower(0);
     }
 
+    public void run() {
+        intakeOn = true;
+        outtakeActive = false;
+        intakeMotor.setPower(INTAKE_POWER);
+    }
+
     public static double getIntakePower() {
         return INTAKE_POWER;
     }
