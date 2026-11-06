@@ -14,7 +14,7 @@ public class Shooter {
     private boolean shooterOn = false;
     private boolean previousY = false;
 
-    private static final double SHOOTER_POWER = 0.622;
+    private static final double SHOOTER_POWER = 0.635;
 
     public Shooter(HardwareMap hardwareMap) {
 

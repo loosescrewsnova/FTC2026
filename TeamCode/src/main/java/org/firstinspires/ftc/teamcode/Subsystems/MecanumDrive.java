@@ -105,8 +105,8 @@ public class MecanumDrive {
         rightBackMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         // Odometry pods.
-        forwardPod = hardwareMap.get(DcMotor.class, "forwardPod");
-        strafePod = hardwareMap.get(DcMotor.class, "strafePod");
+        forwardPod = hardwareMap.get(DcMotor.class, "leftFrontMotor");
+        strafePod = hardwareMap.get(DcMotor.class, "rightBackMotor");
 
         forwardPod.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         strafePod.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
