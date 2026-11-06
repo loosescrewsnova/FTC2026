@@ -48,6 +48,11 @@ public class Shooter {
         shooterMotor.setPower(0);
     }
 
+    public void run() {
+        shooterOn = true;
+        shooterMotor.setPower(SHOOTER_POWER);
+    }
+
     public double getShooterPower() {
         return currentPower;
     }

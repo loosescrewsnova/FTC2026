@@ -6,7 +6,6 @@ import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants;
@@ -18,7 +17,14 @@ public class SampleAutoPathing extends OpMode {
     private Follower follower;
     private ElapsedTime pathTimer, opModeTimer;
 
-    private DcMotor intakeMotor, shooterMotor, feederMotor;
+    private Intake intakeMotor;
+    private Shooter shooterMotor;
+    private Feeder feederServo;
+
+    private static final double INTAKE_TIME = 4.0; //how long the intake will run for at the end of path 1
+    private static final double SHOOT_TIME = 3.0; //how long the shooter has to run to get to top speed before filtering
+    private static final double FEED_TIME = 4.0; //how long the feeder will feed the balls
+
 
     public enum PathState {
         // START POSITION to INTAKE POSITION
@@ -32,61 +38,70 @@ public class SampleAutoPathing extends OpMode {
         INTAKE_PRELOAD,
         DRIVE_INTAKEPOS_SHOOTPOS,
         SHOOT_PRELOAD,
+        FEED_PRELOAD,
         DONE
     }
 
     private PathState pathState;
-    private boolean path1Done = false;
-    private boolean path2done = false;
     private final PoseFactory p = PoseFactory.degrees();
 
     private final Pose startPose = p.of(56, 8, 90);
-    private final Pose intakePose = p.of(82.3, 32.73, 45); // PLACEHOLDER VALUES
+    private final Pose intakePose = p.of(82.3, 32.73, 45);
     private final Pose shootPose = p.of(0, 0, 0); // PLACEHOLDER VALUES
 
     private Path driveStartPosIntakePos, driveIntakePosShootPos;
 
     public void buildPaths() {
         // put in coordinates for starting pose > ending pose
-        driveStartPosIntakePos = line(startPose, intakePose)
-                .linear(startPose, intakePose);
+        driveStartPosIntakePos = line(startPose, intakePose).linear(startPose, intakePose);
 
-        driveIntakePosShootPos = line(intakePose, shootPose)
-                .linear(intakePose, shootPose);
+        driveIntakePosShootPos = line(intakePose, shootPose).linear(intakePose, shootPose);
     }
 
     public void statePathUpdate() {
         switch (pathState) {
+
             case DRIVE_STARTPOS_INTAKE_POS:
-                follower.follow(driveStartPosIntakePos);
-                setPathState(PathState.INTAKE_PRELOAD); // reset the timer & make new state
+                //path will start in start() once
                 if (!follower.isBusy()) {
-                    path1Done = true;
-
-
-
+                    intakeMotor.run();
+                    setPathState(PathState.INTAKE_PRELOAD); // reset the timer & make new state
                 }
+                break;
 
-            case SHOOT_PRELOAD:
-                // check: is the follower done with its path?
-                // check: has 5 seconds elapsed?
-                if (!follower.isBusy() && pathTimer.seconds() > 5) {
-                    // TODO add shooting logic here(flywheels)
+            case INTAKE_PRELOAD:
+                //follower.follow(driveIntakePosShootPos);
+                if (!follower.isBusy() && pathTimer.seconds() > INTAKE_TIME) {
                     follower.follow(driveIntakePosShootPos);
-                    setPathState(PathState.DRIVE_INTAKEPOS_SHOOTPOS);
+                    setPathState(PathState.DRIVE_INTAKEPOS_SHOOTPOS); // reset the timer & make new state
                 }
                 break;
 
             case DRIVE_INTAKEPOS_SHOOTPOS:
-                // all done?
                 if (!follower.isBusy()) {
-                    telemetry.addLine("Done Path 2");
+                    shooterMotor.run();
+                    setPathState(PathState.SHOOT_PRELOAD);
                 }
                 break;
 
-            default:
-                telemetry.addLine("No State Commanded");
+            case SHOOT_PRELOAD:
+                // check: is the follower done with its path?
+                // check: has 5 seconds elapsed?
+                if (!follower.isBusy() && pathTimer.seconds() > SHOOT_TIME) {
+                    feederServo.run();
+                    setPathState(PathState.FEED_PRELOAD);
+                }
                 break;
+            case FEED_PRELOAD:
+                if (!follower.isBusy() && pathTimer.seconds() > FEED_TIME) {
+                    stopAll();
+                    setPathState(PathState.DONE);
+                }
+                break;
+            case DONE:
+            default:
+                break;
+
         }
     }
 
@@ -95,26 +110,36 @@ public class SampleAutoPathing extends OpMode {
         pathTimer.reset();
     }
 
+    private void stopAll() {
+        intakeMotor.stop();
+        shooterMotor.stop();
+        feederServo.stop();
+    }
+
     @Override
-    public void init() {
+    public void init () {
         pathState = PathState.DRIVE_STARTPOS_INTAKE_POS;
         pathTimer = new ElapsedTime();
         opModeTimer = new ElapsedTime();
         follower = Constants.create(hardwareMap);
-        // TODO add in any other init mechanisms (limelight, flywheels, etc.)
+
+        intakeMotor = new Intake(hardwareMap);
+        shooterMotor = new Shooter(hardwareMap);
+        feederServo = new Feeder(hardwareMap);
 
         buildPaths();
         follower.setPose(startPose);
     }
 
     @Override
-    public void start() {
+    public void start () {
         opModeTimer.reset();
-        setPathState(pathState);
+        follower.follow(driveStartPosIntakePos); //first path once
+        setPathState(PathState.DRIVE_STARTPOS_INTAKE_POS);
     }
 
     @Override
-    public void loop() {
+    public void loop () {
         follower.update();
         statePathUpdate();
 
@@ -124,5 +149,9 @@ public class SampleAutoPathing extends OpMode {
         telemetry.addData("heading (deg)", Math.toDegrees(follower.pose().heading()));
         telemetry.addData("Path time", pathTimer.seconds());
         telemetry.update();
+    }
+    @Override
+    public void stop() {
+        stopAll();
     }
 }
