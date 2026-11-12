@@ -56,4 +56,10 @@ public class Shooter {
     public double getShooterSpeed() {
         return shooterSpeed;
     }
+
+    public void stop() {
+    }
+
+    public void run() {
+    }
 }

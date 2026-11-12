@@ -87,4 +87,7 @@ public class Intake {
     public static double getOuttakePower() {
         return OUTTAKE_POWER;
     }
+
+    public void run() {
+    }
 }
