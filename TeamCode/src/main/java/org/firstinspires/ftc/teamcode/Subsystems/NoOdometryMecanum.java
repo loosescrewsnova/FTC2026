@@ -18,12 +18,16 @@ public class NoOdometryMecanum {
         backLeft = hardwareMap.get(DcMotor.class, "leftBackMotor");
         backRight = hardwareMap.get(DcMotor.class, "rightBackMotor");
 
-        // Most common FTC motor directions
-        frontLeft.setDirection(DcMotor.Direction.REVERSE);
+        // Match the drivetrain motor directions used by MecanumDriveMain.
+        frontLeft.setDirection(DcMotor.Direction.FORWARD);
         backLeft.setDirection(DcMotor.Direction.REVERSE);
+        frontRight.setDirection(DcMotor.Direction.REVERSE);
+        backRight.setDirection(DcMotor.Direction.REVERSE);
 
-        frontRight.setDirection(DcMotor.Direction.FORWARD);
-        backRight.setDirection(DcMotor.Direction.FORWARD);
+        frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -33,9 +37,9 @@ public class NoOdometryMecanum {
 
     public void drive(Gamepad gamepad) {
 
-        double y = gamepad.left_stick_y; // forward/back
+        double y = -gamepad.left_stick_y; // forward/back
         double x = gamepad.left_stick_x;  // strafe
-        double rx = -gamepad.right_stick_x; // turn
+        double rx = gamepad.right_stick_x; // turn
 
         double frontLeftPower = y + x + rx;
         double frontRightPower = y - x - rx;

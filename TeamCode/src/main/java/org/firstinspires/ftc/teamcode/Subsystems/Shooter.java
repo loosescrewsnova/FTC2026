@@ -18,7 +18,6 @@ public class Shooter {
 
     public Shooter(HardwareMap hardwareMap) {
 
-        // The shooter is currently configured as "intakeMotor".
         shooterMotor = hardwareMap.get(DcMotor.class, "shooterMotor");
 
         shooterMotor.setDirection(DcMotorSimple.Direction.FORWARD);

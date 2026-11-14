@@ -10,8 +10,8 @@ public class PollenPusher {
 
     // Servo positions (0.0 to 1.0). Tune these on the robot so the
     // servo doesn't bind at either end of its travel.
-    private static final double PUSH_POSITION = 1.0;
-    private static final double REST_POSITION = 0.0;
+    private static final double PUSH_POSITION = -0.07;
+    private static final double REST_POSITION = 1.0;
 
     public PollenPusher(HardwareMap hardwareMap) {
         pollenPusherServo = hardwareMap.get(Servo.class, "pollenPusherServo");

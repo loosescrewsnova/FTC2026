@@ -20,8 +20,8 @@ import org.firstinspires.ftc.teamcode.Subsystems.Shooter;
  *   B (right)     = intake toggle (click on, click again off)
  *   A (bottom)    = pollen pusher (hold)
  */
-@TeleOp(name = "NoLimelightMain", group = "Mains")
-public class NoLimelightMain extends LinearOpMode {
+@TeleOp(name = "TwoPlayer", group = "Mains")
+public class TwoPlayer extends LinearOpMode {
 
     @Override
     public void runOpMode() {
