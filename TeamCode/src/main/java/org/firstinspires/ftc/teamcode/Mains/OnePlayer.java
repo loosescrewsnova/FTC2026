@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.Subsystems.Shooter;
  *   Y (top)       = shooter (hold)
  *   X (left)      = feeder servo (hold)
  *   B (right)     = intake toggle (click on, click again off)
- *   A (bottom)    = pollen pusher (hold)
+ *   A (bottom)    = pollen pusher (toggle)
  */
 @TeleOp(name = "OnePlayer", group = "Mains")
 public class OnePlayer extends LinearOpMode {
