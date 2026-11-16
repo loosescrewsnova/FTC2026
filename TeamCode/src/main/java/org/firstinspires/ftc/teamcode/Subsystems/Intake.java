@@ -1,3 +1,4 @@
+
 package org.firstinspires.ftc.teamcode.Subsystems;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -11,14 +12,15 @@ public class Intake {
 
     private static final double INTAKE_POWER = 1.0;
     private static final double OUTTAKE_POWER = -1.0;
-    private static final double HOLD_TIME = 1.5;
 
     private boolean intakeOn = false;
 
     private boolean previousB = false;
+    private boolean previousA = false;
     private boolean outtakeActive = false;
 
     private long bPressTime = 0;
+    private long aPressTime = 0;
 
     public Intake(HardwareMap hardwareMap) {
 
@@ -33,36 +35,23 @@ public class Intake {
     public void intake(Gamepad gamepad) {
 
         boolean bPressed = gamepad.b;
+        boolean aPressed = gamepad.a;
 
-        // Detect initial B press.
+        // B toggles intake ON/OFF.
         if (bPressed && !previousB) {
-            bPressTime = System.nanoTime();
+            intakeOn = !intakeOn;
             outtakeActive = false;
         }
 
-        // Check if B is held for 1.5 seconds.
-        if (bPressed && !outtakeActive) {
-
-            double holdTime =
-                    (System.nanoTime() - bPressTime) / 1_000_000_000.0;
-
-            if (holdTime >= HOLD_TIME) {
-                outtakeActive = true;
-            }
+        // A toggles outtake ON/OFF.
+        if (aPressed && !previousA) {
+            outtakeActive = !outtakeActive;
+            intakeOn = false;
         }
 
-        // Detect B release.
-        if (!bPressed && previousB) {
-
-            if (!outtakeActive) {
-                // Short tap toggles intake.
-                intakeOn = !intakeOn;
-            }
-
-            outtakeActive = false;
-        }
-
+        // Update previous button states.
         previousB = bPressed;
+        previousA = aPressed;
 
         // Control motor.
         if (outtakeActive) {
@@ -75,8 +64,10 @@ public class Intake {
     }
 
     public void stop() {
+
         intakeOn = false;
         outtakeActive = false;
+
         intakeMotor.setPower(0);
     }
 
