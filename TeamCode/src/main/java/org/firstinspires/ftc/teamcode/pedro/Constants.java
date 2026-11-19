@@ -1,19 +1,13 @@
 package org.firstinspires.ftc.teamcode.pedro;
 
 import com.pedropathing.follower.Follower;
-import com.pedropathing.revhub.drivetrains.Mecanum;
 import com.pedropathing.revhub.drivetrains.MecanumConfig;
 import com.pedropathing.revhub.localizers.Encoder;
-import com.pedropathing.revhub.localizers.TwoWheelLocalizer;
 import com.pedropathing.revhub.localizers.RevHubIMU;
 import com.pedropathing.revhub.localizers.TwoWheelConfig;
-import com.pedropathing.tuning.autotune.Procedure;
-import com.pedropathing.tuning.autotune.Tuner;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-
-import org.firstinspires.ftc.teamcode.pedro.procedures.ForesightTuner;
 
 public class Constants {
 
@@ -38,29 +32,16 @@ public class Constants {
         c.xPodName.set("leftBackMotor");
         c.yPodName.set("rightFrontMotor");
         c.imuName.set("imu");
-        c.xPodOffset.set(76.35208795703733);
-        c.yPodOffset.set(-26.001351659920218);
-        c.forwardTicksToInches.set(0.03744825256957815);
-        c.strafeTicksToInches.set(3.0916447031977143);
+        c.xPodOffset.set(4.618084400988725);
+        c.yPodOffset.set(-0.14960021492894857);
+        c.forwardTicksToInches.set(0.0019640289144765657);
+        c.strafeTicksToInches.set(0.001975654042802322);
         c.xPodDirection.set(Encoder.REVERSE);
-        c.yPodDirection.set(Encoder.REVERSE);
+        c.yPodDirection.set(Encoder.FORWARD);
         c.imu.set(new RevHubIMU(new RevHubOrientationOnRobot(
                 RevHubOrientationOnRobot.LogoFacingDirection.UP,
                 RevHubOrientationOnRobot.UsbFacingDirection.LEFT
         )));
     });
 
-    @Tuner
-    public static Procedure foresightTuner() {
-        return new ForesightTuner(
-                (hardwareMap) -> new TwoWheelLocalizer(
-                        hardwareMap,
-                        Constants.localizerConfig
-                ),
-                (hardwareMap) -> new Mecanum(
-                        hardwareMap,
-                        Constants.drivetrainConfig
-                )
-        );
-    }
 }
