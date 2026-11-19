@@ -18,10 +18,10 @@ import org.firstinspires.ftc.teamcode.Subsystems.Shooter;
  *   Y (top)       = shooter (hold)
  *   X (left)      = feeder servo (hold)
  *   B (right)     = intake toggle (click on, click again off)
- *   A (bottom)    = pollen pusher (hold)
+ *   A (bottom)    = pollen pusher (toggle)
  */
-@TeleOp(name = "NoLimelightMain", group = "Mains")
-public class NoLimelightMain extends LinearOpMode {
+@TeleOp(name = "OnePlayer", group = "Mains")
+public class OnePlayer extends LinearOpMode {
 
     @Override
     public void runOpMode() {
@@ -40,10 +40,10 @@ public class NoLimelightMain extends LinearOpMode {
         while (opModeIsActive()) {
 
             mecanum.drive(gamepad1);
-            shooter.shooter(gamepad2);
-            intake.intake(gamepad2);
-            feeder.feeder(gamepad2);
-            pollenPusher.pollenPusher(gamepad2);
+            shooter.shooter(gamepad1);
+            intake.intake(gamepad1);
+            feeder.feeder(gamepad1);
+            pollenPusher.pollenPusher(gamepad1);
 
             telemetry.addData("Shooter power", shooter.getShooterPower());
             telemetry.addData("Intake power", Intake.getIntakePower());

@@ -14,11 +14,10 @@ public class Shooter {
     private boolean shooterOn = false;
     private boolean previousY = false;
 
-    private static final double SHOOTER_POWER = 0.622;
+    private static final double SHOOTER_POWER = 0.6000000000067;
 
     public Shooter(HardwareMap hardwareMap) {
 
-        // The shooter is currently configured as "intakeMotor".
         shooterMotor = hardwareMap.get(DcMotor.class, "shooterMotor");
 
         shooterMotor.setDirection(DcMotorSimple.Direction.FORWARD);
