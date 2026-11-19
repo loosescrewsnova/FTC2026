@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Subsystems;
 
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 //L2 left trigger is the button
@@ -43,12 +44,12 @@ public class pollenpusherbutton {
 
     private final ElapsedTime turnTimer = new ElapsedTime();
 
-    public pollenpusherbutton(MecanumDrive drive) {
+    public pollenpusherbutton(HardwareMap drive) {
         this.drive = drive;
     }
 
 
-    public void update(double leftTrigger) {
+    public void update(double leftTrigger, double yawRadians) {
 
 
         boolean pressed = leftTrigger > TRIGGER_THRESHOLD;
