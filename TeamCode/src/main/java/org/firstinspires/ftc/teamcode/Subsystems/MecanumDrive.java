@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Subsystems;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -9,6 +10,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
 public class MecanumDrive {
+
+    private static final double MAX_DRIVE_POWER = 1;
 
     private final DcMotor rightFrontMotor;
     private final DcMotor leftFrontMotor;
@@ -26,7 +29,7 @@ public class MecanumDrive {
 
     // The pods are read through whatever motor port their encoder cable
     // is plugged into. These are the hardware-config names of those ports.
-    // They must match the names used in Pedro's TwoWheelConstants.
+    // They must match the names used in Pedro's TwoWheelConfig.
     // If a pod shares a port with a drive motor, use that drive motor's
     // config name here (and note that reversing that motor in code also
     // flips its encoder count - just flip the DIRECTION constant below).
@@ -95,8 +98,10 @@ public class MecanumDrive {
         leftBackMotor =
                 hardwareMap.get(DcMotor.class, "leftBackMotor");
 
-        rightFrontMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        rightBackMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftFrontMotor.setDirection(DcMotor.Direction.FORWARD);
+        leftBackMotor.setDirection(DcMotor.Direction.REVERSE);
+        rightFrontMotor.setDirection(DcMotor.Direction.REVERSE);
+        rightBackMotor.setDirection(DcMotor.Direction.REVERSE);
 
         // Drive motors no longer feed odometry, so they just run open loop.
         leftFrontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -105,8 +110,8 @@ public class MecanumDrive {
         rightBackMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         // Odometry pods.
-        forwardPod = hardwareMap.get(DcMotor.class, "leftBackMotor");
-        strafePod = hardwareMap.get(DcMotor.class, "rightFrontMotor");
+        forwardPod = hardwareMap.get(DcMotor.class, FORWARD_POD_NAME);
+        strafePod = hardwareMap.get(DcMotor.class, STRAFE_POD_NAME);
 
         forwardPod.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         strafePod.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -119,26 +124,41 @@ public class MecanumDrive {
         previousStrafeTicks = strafePod.getCurrentPosition();
     }
 
+    /**
+     * Drive from the standard FTC gamepad axes:
+     * left stick up = forward, left stick right = strafe right,
+     * right stick right = turn right.
+     */
+    public void mecanumDrive(Gamepad gamepad) {
+        double y = -gamepad.left_stick_y;
+        double x = gamepad.left_stick_x;
+        double rx = gamepad.right_stick_x;
+
+        mecanumDrive(y, x, rx);
+    }
+
+    /**
+     * Drive with robot-relative values where positive y is forward,
+     * positive x is strafe right, and positive rx turns right.
+     */
     public void mecanumDrive(double y, double x, double rx) {
 
         leftFrontMotorSpeed = y + x + rx;
-        leftBackMotorSpeed = y - x + rx;
         rightFrontMotorSpeed = y - x - rx;
+        leftBackMotorSpeed = y - x + rx;
         rightBackMotorSpeed = y + x - rx;
 
-        double max = Math.max(
-                Math.abs(leftFrontMotorSpeed),
-                Math.abs(leftBackMotorSpeed)
+        double maxPower = Math.max(
+                Math.max(Math.abs(leftFrontMotorSpeed), Math.abs(rightFrontMotorSpeed)),
+                Math.max(Math.abs(leftBackMotorSpeed), Math.abs(rightBackMotorSpeed))
         );
 
-        max = Math.max(max, Math.abs(rightFrontMotorSpeed));
-        max = Math.max(max, Math.abs(rightBackMotorSpeed));
-
-        if (max > 0.8) {
-            leftFrontMotorSpeed = (leftFrontMotorSpeed / max) * 0.8;
-            rightFrontMotorSpeed = (rightFrontMotorSpeed / max) * 0.8;
-            leftBackMotorSpeed = (leftBackMotorSpeed / max) * 0.8;
-            rightBackMotorSpeed = (rightBackMotorSpeed / max) * 0.8;
+        if (maxPower > MAX_DRIVE_POWER) {
+            double scale = MAX_DRIVE_POWER / maxPower;
+            leftFrontMotorSpeed *= scale;
+            rightFrontMotorSpeed *= scale;
+            leftBackMotorSpeed *= scale;
+            rightBackMotorSpeed *= scale;
         }
 
         leftFrontMotor.setPower(leftFrontMotorSpeed);

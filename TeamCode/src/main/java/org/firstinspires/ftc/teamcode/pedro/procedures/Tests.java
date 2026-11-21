@@ -56,18 +56,12 @@ public class Tests extends Procedure {
     @Override
     public void run() throws InterruptedException {
         boolean completed = false;
-        boolean algorithm = true, localizer = true, drivetrain = true;
+        boolean algorithm = algorithmSupplier != null;
+        boolean localizer = localizerFunction != null;
+        boolean drivetrain = drivetrainFunction != null;
+        boolean followerConfigured = algorithm && localizer && drivetrain;
 
-        if (algorithmSupplier == null)
-            algorithm = false;
-
-        if (localizerFunction == null)
-            localizer = false;
-
-        if (drivetrainFunction == null)
-            drivetrain = false;
-
-        if (algorithm && localizer && drivetrain)
+        if (followerConfigured)
             followerFunction = (hardwareMap) -> new Follower(localizerFunction.apply(hardwareMap), drivetrainFunction.apply(hardwareMap), algorithmSupplier.get());
 
         Inputs inputs = inputs("Select", "Select");
@@ -78,49 +72,73 @@ public class Tests extends Procedure {
 
         switch (selectedTest.get()) {
             case HOLD:
-                if (!algorithm)
-                    throw new IllegalArgumentException("Algorithm is required for Hold Test.");
+                if (!followerConfigured) {
+                    abort("Hold Test requires a configured algorithm, localizer, and drivetrain.");
+                    return;
+                }
                 completed = runOpMode(new TestsHold(followerFunction));
                 break;
             case LINE:
-                if (!algorithm)
-                    throw new IllegalArgumentException("Algorithm is required for Hold Test.");
+                if (!followerConfigured) {
+                    abort("Line Test requires a configured algorithm, localizer, and drivetrain.");
+                    return;
+                }
+                if (!(distance.get() > 0.0) || !Double.isFinite(distance.get())) {
+                    abort("Test distance must be a positive finite number of inches.");
+                    return;
+                }
                 completed = runOpMode(new TestsLine(followerFunction, distance.get()));
                 break;
             case CURVED:
-                if (!algorithm)
-                    throw new IllegalArgumentException("Algorithm is required for Hold Test.");
+                if (!followerConfigured) {
+                    abort("Curve Test requires a configured algorithm, localizer, and drivetrain.");
+                    return;
+                }
+                if (!(distance.get() > 0.0) || !Double.isFinite(distance.get())) {
+                    abort("Test distance must be a positive finite number of inches.");
+                    return;
+                }
                 completed = runOpMode(new TestsCurve(followerFunction, distance.get()));
                 break;
             case INTERPOLATION_CURVED:
-                if (!algorithm)
-                    throw new IllegalArgumentException("Algorithm is required for Hold Test.");
+                if (!followerConfigured) {
+                    abort("Interpolation Test requires a configured algorithm, localizer, and drivetrain.");
+                    return;
+                }
+                if (!(distance.get() > 0.0) || !Double.isFinite(distance.get())) {
+                    abort("Test distance must be a positive finite number of inches.");
+                    return;
+                }
                 completed = runOpMode(new TestsInterpolation(followerFunction, distance.get()));
                 break;
             case LOCALIZATION:
-                if (!drivetrain)
-                    throw new IllegalArgumentException("Drivetrain is required for Localization Test.");
-                if (!localizer)
-                    throw new IllegalArgumentException("Localizer is required for Localization Test.");
+                if (!drivetrain || !localizer) {
+                    abort("Localization Test requires a configured drivetrain and localizer.");
+                    return;
+                }
                 completed = runOpMode(new TestsLocalization(drivetrainFunction, localizerFunction));
                 break;
             case ODOMETRY:
-                if (!drivetrain)
-                    throw new IllegalArgumentException("Drivetrain is required for Odometry Test.");
-                if (!localizer)
-                    throw new IllegalArgumentException("Localizer is required for Odometry Test.");
+                if (!drivetrain || !localizer) {
+                    abort("Odometry Test requires a configured drivetrain and localizer.");
+                    return;
+                }
                 completed = runOpMode(new TestsOdometry(drivetrainFunction, localizerFunction));
                 if (!completed)
                     abort("Failed odometry test. Please check your odometry pods and ensure they are functioning correctly.");
                 break;
             case POSE:
-                if (!localizer)
-                    throw new IllegalArgumentException("Localizer is required for Pose Test.");
+                if (!localizer) {
+                    abort("Pose Test requires a configured localizer.");
+                    return;
+                }
                 completed = runOpMode(new TestsPose(localizerFunction));
                 break;
             case DRIVING:
-                if (!drivetrain)
-                    throw new IllegalArgumentException("Drivetrain is required for Driving Test.");
+                if (!drivetrain) {
+                    abort("Driving Test requires a configured drivetrain.");
+                    return;
+                }
                 completed = runOpMode(new TestsDriving(drivetrainFunction));
                 break;
         }
@@ -149,6 +167,7 @@ class TestsHold extends TuningOpMode<Boolean> {
         while (opModeIsActive()) {
             follower.update();
         }
+        follower.stop();
         return true;
     }
 }
@@ -168,11 +187,11 @@ class TestsLine extends TuningOpMode<Boolean> {
         Follower follower = followerFunction.apply(hardwareMap);
         follower.setPose(Pose.zero());
 
-        double distance = 48;
+        double pathDistance = this.distance;
         boolean forward = true;
 
-        Path path1 = line(Pose.zero(), new Pose(distance,0, 0)).constant(0);
-        Path path2 = line(new Pose(distance,0, 0), Pose.zero()).constant(0);
+        Path path1 = line(Pose.zero(), new Pose(pathDistance,0, 0)).constant(0);
+        Path path2 = line(new Pose(pathDistance,0, 0), Pose.zero()).constant(0);
 
         Thread.sleep(1000);
         waitForStart();
@@ -191,6 +210,7 @@ class TestsLine extends TuningOpMode<Boolean> {
                 forward = !forward;
             }
         }
+        follower.stop();
         return true;
     }
 }
@@ -210,11 +230,11 @@ class TestsCurve extends TuningOpMode<Boolean> {
         Follower follower = followerFunction.apply(hardwareMap);
         follower.setPose(Pose.zero());
 
-        double distance = 48;
+        double curveDistance = this.distance;
         boolean forward = true;
 
-        Path path1 = curve(Pose.zero(), new Pose(distance + 0,0), new Pose(distance,distance)).tangent();
-        Path path2 = curve(new Pose(distance,distance), new Pose(distance,0), Pose.zero()).tangent();
+        Path path1 = curve(Pose.zero(), new Pose(curveDistance,0), new Pose(curveDistance,curveDistance)).tangent();
+        Path path2 = curve(new Pose(curveDistance,curveDistance), new Pose(curveDistance,0), Pose.zero()).tangent();
 
         Thread.sleep(1000);
         waitForStart();
@@ -233,6 +253,7 @@ class TestsCurve extends TuningOpMode<Boolean> {
                 forward = !forward;
             }
         }
+        follower.stop();
         return true;
     }
 }
@@ -252,11 +273,11 @@ class TestsInterpolation extends TuningOpMode<Boolean> {
         Follower follower = followerFunction.apply(hardwareMap);
         follower.setPose(Pose.zero());
 
-        double distance = 48;
+        double interpolationDistance = this.distance;
         boolean forward = true;
 
-        Path path1 = curve(Pose.zero(), new Pose(distance + 0,0), new Pose(distance,distance)).heading((curve, t) -> Math.PI);
-        Path path2 = curve(new Pose(distance,distance), new Pose(distance,0), Pose.zero()).heading(Interpolator.piecewise().until(0.5, Interpolator.tangent).until(1.0, Interpolator.constant(0)));
+        Path path1 = curve(Pose.zero(), new Pose(interpolationDistance,0), new Pose(interpolationDistance,interpolationDistance)).heading((curve, t) -> Math.PI);
+        Path path2 = curve(new Pose(interpolationDistance,interpolationDistance), new Pose(interpolationDistance,0), Pose.zero()).heading(Interpolator.piecewise().until(0.5, Interpolator.tangent).until(1.0, Interpolator.constant(0)));
 
         Thread.sleep(1000);
         waitForStart();
@@ -275,6 +296,7 @@ class TestsInterpolation extends TuningOpMode<Boolean> {
                 forward = !forward;
             }
         }
+        follower.stop();
         return true;
     }
 }
@@ -306,6 +328,7 @@ class TestsLocalization extends TuningOpMode<Boolean> {
             telemetry.addData("Pose", localizer.pose());
             telemetry.update();
         }
+        drivetrain.stop();
         return true;
     }
 }
@@ -435,6 +458,7 @@ class TestsOdometry extends TuningOpMode<Boolean> {
             telemetry.addData("Pose", localizer.pose());
             telemetry.update();
         }
+        drivetrain.stop();
         return passedX && passedY && passedHeading;
     }
 }
@@ -454,6 +478,7 @@ class TestsDriving extends TuningOpMode<Boolean> {
         while (opModeIsActive()) {
             drivetrain.drive(new DrivePowers(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x), true);
         }
+        drivetrain.stop();
         return true;
     }
 }
