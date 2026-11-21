@@ -58,11 +58,7 @@ public class IntakeStarterBotMain extends OpMode {
 
         intake.intake(gamepad1);
 
-        double y = gamepad1.left_stick_y;
-        double x = -gamepad1.left_stick_x;
-        double rx = -gamepad1.right_stick_x;;
-
-        mecanumDrive.mecanumDrive(y, x, rx);
+        mecanumDrive.mecanumDrive(gamepad1);
 
         // Hold right bumper to enable turret mode: the robot auto-rotates
         // to keep the AprilTag centered in the Limelight's view while you
