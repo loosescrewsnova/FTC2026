@@ -33,4 +33,7 @@ public class Feeder {
     public static double getFeedPower() {
         return FEED_POWER;
     }
+
+    public void run() {
+    }
 }
