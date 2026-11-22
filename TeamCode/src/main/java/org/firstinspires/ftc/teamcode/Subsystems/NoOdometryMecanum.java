@@ -41,6 +41,11 @@ public class NoOdometryMecanum {
         double x = gamepad.left_stick_x;  // strafe
         double rx = gamepad.right_stick_x; // turn
 
+        drive(y, x, rx);
+    }
+
+    /** Drives with robot-relative forward, strafe-right, and turn-right values. */
+    public void drive(double y, double x, double rx) {
         double frontLeftPower = y + x + rx;
         double frontRightPower = y - x - rx;
         double backLeftPower = y - x + rx;

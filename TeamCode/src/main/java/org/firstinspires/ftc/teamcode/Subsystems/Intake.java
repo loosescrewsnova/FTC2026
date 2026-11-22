@@ -107,6 +107,13 @@ public class Intake {
 
 
 
+    /** Starts the intake for autonomous use. */
+    public void run() {
+        intakeOn = true;
+        outtakeOn = false;
+        intakeMotor.setPower(INTAKE_POWER);
+    }
+
     public void stop() {
         intakeOn = false;
         outtakeOn = false;
@@ -130,8 +137,6 @@ public class Intake {
 
 
 
-    public void run() {
-    }
 }
 
 
