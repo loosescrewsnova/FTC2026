@@ -32,7 +32,7 @@ public class Shooter {
 
 
 
-    private static final double SHOOTER_POWER = 0.622;
+    private static final double SHOOTER_POWER = 0.64667;
 
 
 
