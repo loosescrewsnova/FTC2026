@@ -64,6 +64,7 @@ public class SampleAutoPathing extends OpMode {
                 }
                 break;
 
+
             case DRIVE_SHOOTPOS_ENDPOS:
                 // all done?
                 if (!follower.isBusy()) {
@@ -112,4 +113,10 @@ public class SampleAutoPathing extends OpMode {
         telemetry.addData("Path time", pathTimer.seconds());
         telemetry.update();
     }
+
+    @Override
+    public void stop() {
+        stopAll();
+    }
 }
+

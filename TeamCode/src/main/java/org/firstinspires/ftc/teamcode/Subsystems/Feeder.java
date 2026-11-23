@@ -30,6 +30,10 @@ public class Feeder {
         feederServo.setPower(STOP_POWER);
     }
 
+    public void run() {
+        feederServo.setPower(FEED_POWER);
+    }
+
     public static double getFeedPower() {
         return FEED_POWER;
     }
