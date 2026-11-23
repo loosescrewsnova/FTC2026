@@ -33,3 +33,5 @@ problems/
 executionHistory/
 fileHashes/
 buildOutputCleanup/
+
+.gradle/file-system.probe
