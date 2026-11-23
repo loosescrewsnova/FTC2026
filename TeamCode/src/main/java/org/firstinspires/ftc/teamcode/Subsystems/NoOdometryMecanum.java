@@ -41,6 +41,12 @@ public class NoOdometryMecanum {
         double x = gamepad.left_stick_x;  // strafe
         double rx = gamepad.right_stick_x; // turn
 
+        drive(y, x, rx);
+    }
+
+    /** Drive with an independently chosen turn value, such as PID output. */
+    public void drive(double y, double x, double rx) {
+
         double frontLeftPower = y + x + rx;
         double frontRightPower = y - x - rx;
         double backLeftPower = y - x + rx;

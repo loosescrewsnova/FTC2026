@@ -18,6 +18,9 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class Constants {
 
+    // PedroPathing Foresight heading gain from the completed tuning run.
+    public static final double HEADING_FEEDBACK_KP = 2.727781438327698;
+
     private static final double POD_TICKS_PER_REV = 2000.0;
     private static final double POD_WHEEL_DIAMETER_INCHES = 1.2598;
     private static final double POD_INCHES_PER_TICK =
@@ -76,7 +79,7 @@ public class Constants {
                 c.coast.set(Controller.proportionalFeedforward(0.01711803500067648));
                 c.brake.set(Controller.proportionalFeedforward(0.014550329750575007));
 
-                c.headingFeedback.set(Controller.proportional(2.727781438327698));
+                c.headingFeedback.set(Controller.proportional(HEADING_FEEDBACK_KP));
                 c.headingBrakeCoefficients.set(Vector2D.cartesian(0.06767466175370807, 1.53852931616305E-4));
 
                 c.linearBrakeCoefficients.set(Matrix.diag(0.09463597075477415, 0.08095039008654907));
