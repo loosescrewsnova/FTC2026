@@ -44,8 +44,9 @@ public class NoOdometryMecanum {
         drive(y, x, rx);
     }
 
-    /** Drives with robot-relative forward, strafe-right, and turn-right values. */
+    /** Drive with an independently chosen turn value, such as PID output. */
     public void drive(double y, double x, double rx) {
+
         double frontLeftPower = y + x + rx;
         double frontRightPower = y - x - rx;
         double backLeftPower = y - x + rx;

@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Subsystems;
 
+import org.firstinspires.ftc.teamcode.pedro.Constants;
+
 /*
  * Simple, reusable PID controller with two safety details baked in:
  *
@@ -15,21 +17,19 @@ package org.firstinspires.ftc.teamcode.Subsystems;
  */
 public class PIDController {
 
-    private final double kP;
-    private final double kI;
-    private final double kD;
+    // PedroPathing tunes heading error in radians. This controller receives
+    // the Limelight error converted to radians by Main, so the tuned gain is
+    // directly applicable here. Pedro's Foresight tuning does not provide
+    // turret-specific integral or derivative gains.
+    private final double kP = Constants.HEADING_FEEDBACK_KP;
+    private final double kI = 0.0;
+    private final double kD = 0.0;
 
     private double integralSum = 0;
     private double lastError = 0;
     private long lastTimeNanos;
     private double integralLimit = Double.MAX_VALUE;
     private boolean firstSampleSinceReset = true;
-
-    public PIDController(double kP, double kI, double kD) {
-        this.kP = kP;
-        this.kI = kI;
-        this.kD = kD;
-    }
 
     // Caps how far the integral sum can wind up in either direction.
     public void setIntegralLimit(double limit) {

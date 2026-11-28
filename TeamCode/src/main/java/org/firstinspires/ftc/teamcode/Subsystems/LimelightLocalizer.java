@@ -69,23 +69,23 @@ public class LimelightLocalizer {
     }
 
     public double getTx() {
-        if (latestResult == null || !latestResult.isValid() || !seesAllowedTag) {
+        if (!seesAllowedTag || latestResult == null) {
             return 0;
         }
 
-        double closestTx = 0;
-        double closestAbsTx = Double.POSITIVE_INFINITY;
+        LLResultTypes.FiducialResult closestToCenter = null;
         for (LLResultTypes.FiducialResult tag : latestResult.getFiducialResults()) {
             if (!ALLOWED_TAGS.contains(tag.getFiducialId())) {
                 continue;
             }
 
-            double targetX = tag.getTargetXDegrees();
-            if (Math.abs(targetX) < closestAbsTx) {
-                closestTx = targetX;
-                closestAbsTx = Math.abs(targetX);
+            if (closestToCenter == null
+                    || Math.abs(tag.getTargetXDegrees())
+                    < Math.abs(closestToCenter.getTargetXDegrees())) {
+                closestToCenter = tag;
             }
         }
-        return closestTx;
+
+        return closestToCenter == null ? 0 : closestToCenter.getTargetXDegrees();
     }
 }
