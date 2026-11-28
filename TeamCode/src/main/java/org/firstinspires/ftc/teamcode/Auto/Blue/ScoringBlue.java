@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Auto;
+package org.firstinspires.ftc.teamcode.Auto.Blue;
 
 import com.pedropathing.api.PoseFactory;
 import com.pedropathing.math.Pose;
@@ -15,8 +15,8 @@ import org.firstinspires.ftc.teamcode.pedro.Constants;
 import static com.pedropathing.api.Paths.curve;
 import static com.pedropathing.api.Paths.line;
 
-@Autonomous(name = "Pedropath1")
-public class Pedropath1blue extends OpMode {
+@Autonomous(name = "Scoring Blue", group = "Blues")
+public class ScoringBlue extends OpMode {
 
     private static final double STATIONARY_WAIT_SECONDS = 7.5;
     private static final double GARDEN_WAIT_SECONDS = 4.0;
