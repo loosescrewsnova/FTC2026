@@ -32,7 +32,7 @@ public class Shooter {
 
 
 
-    private static final double SHOOTER_POWER = 0.622;
+    private static final double SHOOTER_POWER = 0.64667;
 
 
 
@@ -95,6 +95,19 @@ public class Shooter {
 
 
 
+
+    /** Runs the shooter at its configured autonomous power. */
+    public void run() {
+        shooterOn = true;
+        currentPower = SHOOTER_POWER;
+        shooterMotor.setPower(currentPower);
+    }
+
+    public void run(double power) {
+        shooterOn = true;
+        currentPower = power;
+        shooterMotor.setPower(currentPower);
+    }
 
     public double getShooterPower() {
         return currentPower;

@@ -61,6 +61,7 @@ public class pollenpushermain extends OpMode {
         intake = new Intake(hardwareMap);
         feeder = new Feeder(hardwareMap);
         pollenPusher = new PollenPusher(hardwareMap);
+        pusherButton = new pollenpusherbutton(mecanum);
 
 
         // Control Hub's built-in IMU. "imu" is the default name in the robot config.

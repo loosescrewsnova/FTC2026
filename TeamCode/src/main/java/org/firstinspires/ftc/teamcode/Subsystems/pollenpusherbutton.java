@@ -14,7 +14,7 @@ public class pollenpusherbutton {
 
 
 
-    private final MecanumDrive drive;
+    private final NoOdometryMecanum drive;
 
 
 
@@ -85,7 +85,7 @@ public class pollenpusherbutton {
 
 
 
-    public pollenpusherbutton(MecanumDrive drive) {
+    public pollenpusherbutton(NoOdometryMecanum drive) {
         this.drive = drive;
     }
 
@@ -116,7 +116,7 @@ public class pollenpusherbutton {
 
 
 
-        double heading = drive.getHeadingRadians();
+        double heading = yawRadians;
 
 
 
@@ -191,7 +191,7 @@ public class pollenpusherbutton {
 
         if (Math.abs(error) < Math.toRadians(TOLERANCE_DEGREES)
                 || turnTimer.seconds() > TURN_TIMEOUT_SECONDS) {
-            drive.mecanumDrive(0, 0, 0);
+            drive.drive(0, 0, 0);
             return true;
         }
         double power = Math.abs(error) * KP;
@@ -209,7 +209,7 @@ public class pollenpusherbutton {
 
 
 
-        drive.mecanumDrive(0, 0, rx);
+        drive.drive(0, 0, rx);
         return false;
     }
 
@@ -225,7 +225,7 @@ public class pollenpusherbutton {
 
     public void cancel() {
         state = State.IDLE;
-        drive.mecanumDrive(0, 0, 0);
+        drive.drive(0, 0, 0);
     }
 
 

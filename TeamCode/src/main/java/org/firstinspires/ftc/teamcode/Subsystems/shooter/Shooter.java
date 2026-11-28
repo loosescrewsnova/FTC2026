@@ -58,8 +58,14 @@ public class Shooter {
     }
 
     public void stop() {
+        shooterSpeed = ShooterConstants.IDLE_POWER;
+        buttonWasPressed = false;
+        shooterMotor.setPower(ShooterConstants.IDLE_POWER);
     }
 
     public void run() {
+        shooterSpeed = ShooterConstants.MAX_SHOOTER_POWER;
+        buttonWasPressed = false;
+        shooterMotor.setPower(shooterSpeed);
     }
 }
