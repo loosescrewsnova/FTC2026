@@ -30,7 +30,13 @@ public class Feeder {
         feederServo.setPower(STOP_POWER);
     }
 
+    /** Runs the feeder continuously for autonomous use. */
+    public void run() {
+        feederServo.setPower(FEED_POWER);
+    }
+
     public static double getFeedPower() {
         return FEED_POWER;
     }
+
 }

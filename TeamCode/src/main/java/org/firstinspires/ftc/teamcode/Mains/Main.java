@@ -28,18 +28,6 @@ public class Main extends OpMode {
     private double endGameStart;
     private boolean isEndGame;
 
-    // ----------------------------
-    // TURRET MODE TUNING
-    // ----------------------------
-    // Tune kP first (start small, increase until tracking is snappy
-    // without oscillating back and forth), then add a little kD to damp
-    // any overshoot. kI is rarely needed for this kind of angular
-    // tracking - leave it at 0 unless you see a persistent steady-state
-    // error that P and D alone won't clear.
-    private static final double TURRET_kP = 0.03;
-    private static final double TURRET_kI = 0.0;
-    private static final double TURRET_kD = 0.002;
-
     // Turret rotation power is capped well below full power - this is a
     // fine tracking correction layered under normal driving, not a full
     // drive command.
@@ -53,7 +41,7 @@ public class Main extends OpMode {
         feeder = new Feeder(hardwareMap);
         imuOrthogonal = new IMUOrthogonalNew(hardwareMap);
         limelightLocalizer = new LimelightLocalizer(hardwareMap);
-        turretPID = new PIDController(TURRET_kP, TURRET_kI, TURRET_kD);
+        turretPID = new PIDController();
         shooter = new Shooter(hardwareMap);
 
 
@@ -101,7 +89,8 @@ public class Main extends OpMode {
             // tx: degrees between the crosshair and the tag. 0 = centered,
             // positive = tag is to the right. Driving this to 0 with the
             // PID is what keeps the tag in view while you strafe.
-            double txError = limelightLocalizer.getTx();
+            // PedroPathing's tuned heading kP expects radians.
+            double txError = Math.toRadians(limelightLocalizer.getTx());
 
             double turretPower = turretPID.calculate(txError);
 
