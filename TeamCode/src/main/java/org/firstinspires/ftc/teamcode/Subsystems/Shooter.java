@@ -96,6 +96,19 @@ public class Shooter {
 
 
 
+    /** Runs the shooter at its configured autonomous power. */
+    public void run() {
+        shooterOn = true;
+        currentPower = SHOOTER_POWER;
+        shooterMotor.setPower(currentPower);
+    }
+
+    public void run(double power) {
+        shooterOn = true;
+        currentPower = power;
+        shooterMotor.setPower(currentPower);
+    }
+
     public double getShooterPower() {
         return currentPower;
     }

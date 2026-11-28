@@ -9,15 +9,17 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Subsystems.Feeder;
 import org.firstinspires.ftc.teamcode.Subsystems.Intake;
-import org.firstinspires.ftc.teamcode.Subsystems.shooter.Shooter;
+import org.firstinspires.ftc.teamcode.Subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
+import static com.pedropathing.api.Paths.curve;
 import static com.pedropathing.api.Paths.line;
 
 @Autonomous(name = "Pedropath1")
 public class Pedropath1blue extends OpMode {
 
-    private static final double STATIONARY_WAIT_SECONDS = 5.0;
+    private static final double STATIONARY_WAIT_SECONDS = 7.5;
+    private static final double GARDEN_WAIT_SECONDS = 4.0;
 
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
@@ -25,8 +27,10 @@ public class Pedropath1blue extends OpMode {
     private final Pose startPose = poseFactory.of(130.0, 32.4, 106);
     private final Pose firstPointPose = poseFactory.of(102.6, 128.2, 106);
     private final Pose secondPointPose = poseFactory.of(83.6, 126.5, 90);
-    private final Pose thirdPointPose = poseFactory.of(102.42, 129.36, -174);
-    private final Pose fourthPointPose = poseFactory.of(102.4, 129.4, 106);
+    private final Pose gardenPose = poseFactory.of(129.8, 131.5, 78);
+    private final Pose gardenOffsetPose = poseFactory.of(133, 132, 80);
+    private final Pose parkingCurveControlPose = poseFactory.of(106.0, 82.0, 0);
+    private final Pose parkingPose = poseFactory.of(128.3, 32.5, 0);
 
     // The package also has a teamcode class named Follower, so explicitly use Pedro's.
     private com.pedropathing.follower.Follower follower;
@@ -38,15 +42,18 @@ public class Pedropath1blue extends OpMode {
 
     private Path path1;
     private Path path2;
-    private Path path3;
-    private Path path4;
+    private Path pathToGarden;
+    private Path pathGardenOffset;
+    private Path pathToParking;
 
     private enum AutoState {
         TO_POINT_1,
         TO_POINT_2,
         STATIONARY_AT_POINT_2,
-        TO_POINT_3,
-        TO_POINT_4,
+        TO_GARDEN,
+        TO_GARDEN_OFFSET,
+        WAITING_AT_GARDEN,
+        TO_PARKING,
         COMPLETE
     }
 
@@ -65,10 +72,12 @@ public class Pedropath1blue extends OpMode {
                 .linear(startPose, firstPointPose);
         path2 = line(firstPointPose, secondPointPose)
                 .linear(firstPointPose, secondPointPose);
-        path3 = line(secondPointPose, thirdPointPose)
-                .linear(secondPointPose, thirdPointPose);
-        path4 = line(thirdPointPose, fourthPointPose)
-                .linear(thirdPointPose, fourthPointPose);
+        pathToGarden = line(secondPointPose, gardenPose)
+                .linear(secondPointPose, gardenPose);
+        pathGardenOffset = line(gardenPose, gardenOffsetPose)
+                .linear(gardenPose, gardenOffsetPose);
+        pathToParking = curve(gardenOffsetPose, parkingCurveControlPose, parkingPose)
+                .linear(gardenOffsetPose, parkingPose);
 
         follower.setPose(startPose);
         feeder.stop();
@@ -80,17 +89,17 @@ public class Pedropath1blue extends OpMode {
                 firstPointPose.x(), firstPointPose.y(), Math.toDegrees(firstPointPose.heading()));
         telemetry.addData("Point 2", "(%.2f, %.2f) | %.0f°",
                 secondPointPose.x(), secondPointPose.y(), Math.toDegrees(secondPointPose.heading()));
-        telemetry.addData("Point 3", "(%.2f, %.2f) | %.0f°",
-                thirdPointPose.x(), thirdPointPose.y(), Math.toDegrees(thirdPointPose.heading()));
-        telemetry.addData("Point 4", "(%.2f, %.2f) | %.0f°",
-                fourthPointPose.x(), fourthPointPose.y(), Math.toDegrees(fourthPointPose.heading()));
+        telemetry.addData("Garden", "(%.2f, %.2f) | %.0f°",
+                gardenPose.x(), gardenPose.y(), Math.toDegrees(gardenPose.heading()));
+        telemetry.addData("Parking", "(%.2f, %.2f) | %.0f°",
+                parkingPose.x(), parkingPose.y(), Math.toDegrees(parkingPose.heading()));
         telemetry.update();
     }
 
     @Override
     public void start() {
         intake.run();
-        shooter.run();
+        shooter.run(0.7);
         feeder.stop();
         state = AutoState.TO_POINT_1;
         follower.follow(path1);
@@ -120,20 +129,37 @@ public class Pedropath1blue extends OpMode {
 
             case STATIONARY_AT_POINT_2:
                 if (stateTimer.seconds() >= STATIONARY_WAIT_SECONDS) {
+                    shooter.stop();
                     feeder.stop();
-                    state = AutoState.TO_POINT_3;
-                    follower.follow(path3);
+                    state = AutoState.TO_GARDEN;
+                    follower.follow(pathToGarden);
                 }
                 break;
 
-            case TO_POINT_3:
+            case TO_GARDEN:
                 if (!follower.isBusy()) {
-                    state = AutoState.TO_POINT_4;
-                    follower.follow(path4);
+                    follower.stop();
+                    state = AutoState.TO_GARDEN_OFFSET;
+                    follower.follow(pathGardenOffset);
                 }
                 break;
 
-            case TO_POINT_4:
+            case TO_GARDEN_OFFSET:
+                if (!follower.isBusy()) {
+                    follower.stop();
+                    stateTimer.reset();
+                    state = AutoState.WAITING_AT_GARDEN;
+                }
+                break;
+
+            case WAITING_AT_GARDEN:
+                if (stateTimer.seconds() >= GARDEN_WAIT_SECONDS) {
+                    state = AutoState.TO_PARKING;
+                    follower.follow(pathToParking);
+                }
+                break;
+
+            case TO_PARKING:
                 if (!follower.isBusy()) {
                     follower.stop();
                     state = AutoState.COMPLETE;
@@ -153,6 +179,10 @@ public class Pedropath1blue extends OpMode {
         if (state == AutoState.STATIONARY_AT_POINT_2) {
             telemetry.addData("Point 2 stationary; feeder on", "%.1f / %.1f s",
                     stateTimer.seconds(), STATIONARY_WAIT_SECONDS);
+        }
+        if (state == AutoState.WAITING_AT_GARDEN) {
+            telemetry.addData("Garden wait", "%.1f / %.1f s",
+                    stateTimer.seconds(), GARDEN_WAIT_SECONDS);
         }
         telemetry.update();
     }
